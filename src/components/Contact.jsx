@@ -44,7 +44,7 @@ const Contact = () => {
         message: form.message,
       }, 
 
-      'uGC8-XzbfUOU9EkFfD'
+      'GC8-XzbfUOU9EkFfD'
       )
 
     .then((result) => {
