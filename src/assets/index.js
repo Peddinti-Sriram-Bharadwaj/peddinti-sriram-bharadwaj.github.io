@@ -31,9 +31,8 @@ import python from "./tech/python.svg"
 import gitam from "./company/gitam.jpg";
 import genesis from "./company/genesis.jpg";
 
-import carrent from "./carrent.png";
-import jobit from "./jobit.png";
-import tripguide from "./tripguide.png";
+
+import shriya from "./feedback_ppl/Shriya.jpeg"
 import emi from "./emi.jpeg";
 import blood from "./blood.jpg";
 import digit from "./digit.jpeg";
@@ -68,9 +67,7 @@ export {
   python,
   gitam,
   genesis,
-  carrent,
-  jobit,
-  tripguide,
+  shriya,
   emi,
   blood,
   digit
