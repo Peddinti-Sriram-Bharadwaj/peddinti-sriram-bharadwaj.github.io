@@ -33,6 +33,8 @@ import genesis from "./company/genesis.jpg";
 
 
 import shriya from "./feedback_ppl/Shriya.jpeg"
+import manogyna from "./feedback_ppl/manogyna.jpeg"
+
 import emi from "./emi.jpeg";
 import blood from "./blood.jpg";
 import digit from "./digit.jpeg";
@@ -68,6 +70,7 @@ export {
   gitam,
   genesis,
   shriya,
+  manogyna,
   emi,
   blood,
   digit

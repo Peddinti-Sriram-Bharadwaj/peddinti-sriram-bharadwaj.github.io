@@ -18,6 +18,7 @@ import {
     genesis,
     threejs,
     shriya,
+    manogyna,
     emi,
     blood,
     digit
@@ -149,6 +150,15 @@ import {
       designation: "Student",
       company: "Gitam Deemed University",
       image: shriya,
+    },
+
+    {
+      testimonial:
+        "Sriram Bharadwaj's coding and problem-solving skills are exceptional. His passion for the AI/ML domain is truly inspiring. He is a standout talent in this field, and his dedication is unquestionable.",
+      name: "K Manogyna",
+      designation: "Student",
+      company: "Gitam Deemed University",
+      image: manogyna,
     },
   ];
   
