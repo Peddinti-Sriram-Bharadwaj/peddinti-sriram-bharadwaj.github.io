@@ -56,7 +56,6 @@ export {
   nodejs,
   reactjs,
   threejs,
-  tensorflow,
   android,
   flutter,
   vuejs,
