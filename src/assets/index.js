@@ -35,7 +35,7 @@ import shriya from "./feedback_ppl/Shriya.jpeg"
 import manogyna from "./feedback_ppl/manogyna.jpeg"
 
 import emi from "./emi.jpeg";
-import blood from "./blood.jpg";
+import blood from "./Blood.jpg";
 import digit from "./digit.jpeg";
 
 export {
