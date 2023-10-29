@@ -16,7 +16,6 @@ import mongodb from "./tech/mongodb.png";
 import nodejs from "./tech/nodejs.png";
 import reactjs from "./tech/reactjs.png";
 import threejs from "./tech/threejs.svg";
-import tensorflow from "./tech/tensorflow.png"; 
 import android from "./tech/android.png";
 import flutter from "./tech/flutter.png";
 import vuejs from "./tech/vue.png";
