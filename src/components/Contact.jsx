@@ -67,7 +67,7 @@ const Contact = () => {
     <div className = 'xl:mt-12 xl:flex-row flex-col-reverse flex gap-10 overflow-hidden'>
       <motion.div
       variants = {slideIn('left', 'tween', 0.5, 1)}
-      className = 'flex-[0.75] bg-black-100 p-8 rounded-2xl'>
+      className = 'flex-[0.75]  bg-black-100 p-8 rounded-2xl'>
         <p className = {styles.sectionSubText}>Get in touch</p>
         <h3 className = {styles.sectionHeadText} >Contact.</h3>
 
@@ -100,7 +100,7 @@ const Contact = () => {
       <label className = 'flex flex-col'>
         <span className = 'text-white font-medium mb-4'>your Message</span>
         <textarea 
-        rows = '7'
+        rows = '2'
         name = 'message'
         value = {form.message}
         onChange = {handleChange}

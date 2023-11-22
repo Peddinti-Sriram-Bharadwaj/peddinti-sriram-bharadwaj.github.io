@@ -7,10 +7,6 @@ const App = () => {
 
   return (
     <BrowserRouter>
-    <div>
-      <a href={process.env.PUBLIC_URL + '../public/sitemap.xml'}></a>
-      <a href={process.env.PUBLIC_URL + '../public/robots.txt'}></a>
-    </div>
       <div className="relative z-0 bg-primary">
         <div className = 'bg-hero-pattern bg-cover bg-center bg-no-repeat'>
           <Navbar />

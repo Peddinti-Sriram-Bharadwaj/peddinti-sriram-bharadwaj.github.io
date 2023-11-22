@@ -22,9 +22,10 @@ const Navbar = () => {
             window.scrollTo(0, 0);
           }}
         >
-          <img src = {portrait} alt={portrait} className='w-50 h-50 object-contain' />
+          
+            <img src={portrait} alt={portrait} className='object-contain' width='50px' height='50px' />
           <p className='text-white font-bold cursor-pointer text-[18px] flex'>
-            Sriram &nbsp;
+          &nbsp; Sriram &nbsp;
             <span className='sm:block hidden'>| Deep Learning Enthusiast</span>
             </p>
         </Link>
