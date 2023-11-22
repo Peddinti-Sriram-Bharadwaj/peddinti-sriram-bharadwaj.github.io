@@ -1,11 +1,9 @@
-
-console.log('hi');
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { styles } from '../styles';
 import { navLinks } from '../constants';
-import { logo, menu, close,portrait } from '../assets';
+import { logo, menu, close } from '../assets';
 
 const Navbar = () => {
   const [active, setActive] = useState("");
@@ -23,7 +21,7 @@ const Navbar = () => {
           }}
         >
           
-            <img src={portrait} alt={portrait} className='object-contain' width='50px' height='50px' />
+            <img src='../../portrait.jpg' alt='Sriram Bharadwaj Portrait' className='object-contain rounded-2xl' width='75px' height='75px' />
           <p className='text-white font-bold cursor-pointer text-[18px] flex'>
           &nbsp; Sriram &nbsp;
             <span className='sm:block hidden'>| Deep Learning Enthusiast</span>
