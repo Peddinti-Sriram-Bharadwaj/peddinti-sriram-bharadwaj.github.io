@@ -5,7 +5,7 @@
   "scripts": {
     "build": "eleventy",
     "start": "eleventy --serve --port 8080",
-    "check": "eleventy --quiet && node tools/check-links.mjs"
+    "check": "rm -rf _site && eleventy --quiet && node tools/check-links.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.8",
