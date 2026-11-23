@@ -1,0 +1,8 @@
+<header class="masthead">
+  <a href="/" class="brand" aria-label="{{ site.name }}, home"><span class="mark" aria-hidden="true"></span><span class="name">{{ site.name }}</span></a>
+  <nav>
+    {%- for item in site.nav %}
+    <a href="{{ item.url }}"{% if item.url | isCurrent(page.url) %} aria-current="page"{% endif %}>{{ item.label }}</a>
+    {%- endfor %}
+  </nav>
+</header>

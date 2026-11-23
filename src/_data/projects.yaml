@@ -1,0 +1,221 @@
+# Every project on the Research page, in display order.
+#
+#   section:  research | earlier | engineering
+#   home:     optional. If present, the project is shown under "Selected research"
+#             on the home page with this shorter meta/summary.
+#   text fields may contain HTML (<em>, <code>, <a>).
+#
+# Minimal entry:
+#   - id: my-project
+#     section: research
+#     cat: RL · Something
+#     title: My Project
+#     summary: [One paragraph.]
+
+- id: collusion
+  section: research
+  cat: Multi-agent · AI safety · Interpretability
+  title: "Tacit Collusion in Pricing Agents: Robustness, Detection, and a Mechanistic Probe of a Pricing LLM"
+  url: https://apartresearch.com/sprints/projects/tacit-collusion-in-pricing-agents-robustness-detection-and-a-mechanistic-probe-of-a-pricing-llm-qxsb
+  meta: Apart Research AI Collusion Research Sprint · Oct 2026 · team “Code Compels”, with Chewon Cho and Gagana MD
+  summary:
+    - We let AI agents set prices in a simulated market and asked two questions. Can collusion be broken without more oversight? And is a pricing LLM's reaction to a rival real strategic reasoning?
+  details:
+    label: Results and limits
+    paras:
+      - <em>Breaking collusion.</em> A single agent that refuses to follow high prices pulls the market back down. This works for a simple rule-based learner, and more strongly for an LLM pricing on its own.
+      - <em>Inside the model.</em> Steering the model's internal representation moves its own price, so the reaction has a physical trace. But a deviation test showed no punishment: the model cut its price about as much after a rival raised prices as after a rival undercut it.
+      - <em>Limits.</em> The steering direction overlaps with a generic “price” direction, which we report openly. This is an early-stage sprint project, not a peer-reviewed publication.
+  status: Completed · report and code public
+  links:
+    - { label: Report, url: "https://apartresearch.com/sprints/projects/tacit-collusion-in-pricing-agents-robustness-detection-and-a-mechanistic-probe-of-a-pricing-llm-qxsb" }
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/Collusion" }
+  home:
+    title: Tacit Collusion in Pricing Agents
+    cat: Multi-agent · AI safety
+    meta: Apart Research sprint · Oct 2026 · with Chewon Cho and Gagana MD
+    summary: One agent that refuses to follow high prices is enough to pull a colluding market back down. High AI prices alone aren't proof of collusion.
+
+- id: sor
+  section: research
+  cat: RL theory · Numerical linear algebra
+  title: "The SOR Family: A Navigable Continuum of Bellman Training Signals"
+  meta: <b>Sriram Bharadwaj</b>, Raghuram Bharadwaj (IIIT Bangalore), Shalabh Bhatnagar (IISc) · Stochastic Systems Lab, IISc · 2026
+  summary:
+    - Successive Over-Relaxation, applied to the Bellman target, gives a continuum of temporal-difference update rules controlled by one relaxation factor ω. Standard and accelerated TD targets fall out as special cases, and it costs nothing extra to add to a Deep Q-Network.
+  details:
+    label: Results
+    paras:
+      - "Up to 65% better performance on Atari environments with Bayesian-optimised ω, and LunarLander-v3 solved in under 160 episodes, with statistical significance checked. The family also carries over to tree search: a TD-SOR variant of AlphaZero applies the relaxed targets to self-play value learning."
+  part:
+    label: My part
+    text: co-developed the update rules; built the orchestration that ran parallel hyperparameter sweeps across 6+ GPUs, and the Optuna/SQLite auditing that measures how ω affects gradient stability, sample complexity and seed robustness; implemented the AlphaZero variant in JAX.
+  status: Manuscript under review
+  home:
+    title: The SOR Family of Bellman Updates
+    cat: RL theory
+    meta: IISc Stochastic Systems Lab · 2026 · under review
+    summary: A single relaxation factor ω that unifies TD-learning update rules. Up to 65% better on Atari. With Raghuram Bharadwaj and Shalabh Bhatnagar.
+
+- id: ubu
+  section: research
+  cat: RL theory · AI safety · Measure theory
+  title: "UBU: Unmeasurability-Based Unlearning for Safe Reinforcement Learning"
+  url: /assets/papers/ubu-unlearning-safe-rl.pdf
+  meta: <b>Sriram Bharadwaj</b>, Raghuram Bharadwaj · IIIT Bangalore · Oct 2025, revised Aug 2026
+  summary:
+    - "Unlearning in RL often hides information rather than erasing it. If an attacker can query a policy on a well-chosen “generating collection” of state–action pairs, Carathéodory's extension theorem says the whole policy is pinned down. We model the attack as a supermartingale over the query history and show reconstruction succeeds almost surely. The defence is to make forbidden states <em>unmeasurable</em>: a sparse mixture-of-experts encoder maps safe states onto a low-dimensional manifold, and forbidden states fall off it."
+  details:
+    label: Results and limits
+    paras:
+      - In a 2D reconstruction attack, the adversary recovers the forbidden region with IoU above 0.95 against a standard value network, and below 0.05 against the defended one. On a 50-dimensional Swiss roll, the encoder cleanly excises a forbidden band.
+      - <em>Limits.</em> Both experiments are controlled proofs of concept. Real encoders are continuous, so the separation is only approximate, and an adversary who learns the manifold geometry is still an open problem.
+  status: Report · not peer-reviewed
+  links:
+    - { label: PDF, url: /assets/papers/ubu-unlearning-safe-rl.pdf }
+  home:
+    title: "UBU: Unmeasurability-Based Unlearning"
+    cat: RL theory · AI safety
+    meta: IIIT Bangalore · 2026 · report
+    summary: If a policy can measure a forbidden state, an attacker can reconstruct it. So make forbidden states unmeasurable.
+
+- id: self-play
+  section: research
+  cat: RL · LLM post-training
+  title: Continual Self-Play RL
+  meta: Independent · Aug 2026 – present
+  summary:
+    - "A multi-agent self-play framework on Qwen2.5 that brings REINFORCE, REINFORCE++, DAPO and GRPO under one roof. I use it to study plasticity collapse: networks losing the ability to learn when their environment keeps changing. The framework spans TextArena, OpenSpiel, PettingZoo and JaxMARL, and includes a dual-LoRA adversarial self-play setup for code repair."
+  status: Active · in progress
+  home:
+    title: Continual Self-Play
+    cat: RL · LLM post-training
+    meta: Independent · ongoing
+    summary: Studying plasticity collapse when language models train against themselves in environments that keep changing.
+
+- id: circuits
+  section: research
+  cat: RL · Mechanistic interpretability · Control
+  title: Circuit Isolation and Control of MuJoCo Agents
+  meta: Independent · Sep 2026 – present
+  summary:
+    - Find out what causal role the live neurons in a trained agent play, then use that to steer a frozen agent from the outside. The pipeline goes from circuit discovery in the base agent, to a clamp interface, to a goal-conditioned controller. I'm now porting it to a MuJoCo body to see whether “macro” commands like walk, stand or raise a limb can be issued to a fine-motor base policy.
+  details:
+    label: Early results
+    paras:
+      - In the pilot, masking in the coordinate basis beat masking through a sparse autoencoder by a wide margin (a drop of +0.7 against −27.0). The SAE's reconstruction noise dominated the effect.
+  status: Active · in progress
+
+- id: vlm-rda
+  section: research
+  cat: RL · Reward design · Vision-language models
+  title: "VLM-RDA: Multimodal Reward Design Agent"
+  meta: Independent · Aug 2026 – present
+  summary:
+    - Text-only reward-design agents like Eureka only see numbers, so they miss reward hacking you can only see. This pipeline feeds evaluation videos straight to a vision-language model, which can spot failures like “zombie dragging” and rewrite the reward code.
+  details:
+    label: How it works
+    paras:
+      - <em>Dual-scale anchoring.</em> The VLM sees the custom reward scale and the true environment scale side by side, so it doesn't drift into reward-hacked optima.
+      - <em>Memory and rollback.</em> A bipartite memory maps visual anomalies to specific reward-code variables, and an elitism rule rolls back to the last stable reward when training diverges.
+      - <em>Backend.</em> A custom PyTorch Conservative Reliable Policy Iteration (CRPI) implementation alongside stable-baselines3 PPO, SAC and TD3, with Optuna sweeps and SLURM deployment.
+  status: Active · in progress
+
+- id: dormant
+  section: research
+  cat: RL · Network plasticity
+  title: Dormant Neurons in RL
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/dormat_RL
+  meta: Independent · Aug 2026 – present
+  summary:
+    - Tracks post-ReLU units that go permanently quiet in DQN agents and recycles them (ReDo). Zero-Interference Routing (ZIR) then zeroes the weights from recycled neurons into a frozen high-activity sub-network, so repurposing them for a new task can't interfere with the old one. A zero-padding wrapper lets one fixed network move between environments, from CartPole to Acrobot.
+    - Checked with 5-seed ablations and multi-head controls, then scaled up to LunarLander, to separate ZIR's effect from random masking and shared-head interference.
+  status: Active · in progress
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/dormat_RL" }
+
+- id: controlnet-car
+  section: earlier
+  cat: Diffusion · ControlNet
+  title: "Generative Automotive Design: Structural Disentanglement"
+  meta: Nov – Dec 2025
+  summary:
+    - A domain-specific ControlNet that separates a car's geometry from its paint and texture, so it can be “resprayed” without the model pulling it back toward a generic sedan. Dropping the text prompt 70% of the time forced the model to rely on edge features, producing a “structural locking” effect visible in what I called the Ghost Car phenomenon.
+
+- id: mosaic
+  section: earlier
+  cat: Diffusion · Layout control
+  title: Semantic Layout Control & Mosaic ControlNet
+  meta: Nov – Dec 2025
+  summary:
+    - Conditioning ControlNet on COCO layouts, with a failure analysis of “concept bleeding” in nested bounding boxes. Mosaic Control is a colour-guidance scheme that abstracts the ground-truth image, keeping spatial correspondence while removing the semantic conflict. Trained on WikiArt within 15 GB of VRAM.
+
+- id: executorch
+  section: engineering
+  cat: Open source · PyTorch / ExecuTorch
+  title: Vulkan Backend Build Fixes
+  meta: Dec 2025 – Jan 2026
+  summary:
+    - Fixed Ninja build failures in ExecuTorch's Vulkan backend (#16354, #14984) by restructuring <code>ShaderLibrary.cmake</code> to drop wildcard dependencies that custom commands don't support. Verified with a clean cross-compile for Android arm64-v8a and a MobileNetV2 run on a real device.
+
+- id: rag
+  section: engineering
+  cat: On-device AI · Android
+  title: Offline RAG Assistant on Gemini Nano
+  meta: Kotlin · AICore · SQLite · Sep 2026 – present
+  summary:
+    - A fully offline six-stage retrieval pipeline on Gemini Nano with an on-device Gecko embedder. It fuses dense and BM25 search, adds HyDE and System 2 Attention filtering, and skips generation entirely when retrieval confidence is too low.
+  part:
+    label: Found along the way
+    text: a poisoned document could be retrieved as the top chunk and hijack the answer. A pre-filter and prompt hardening blocked all of the injected chunks on-device.
+
+- id: voice
+  section: engineering
+  cat: On-device AI · Android · GPU
+  title: Offline Voice Assistant with llama.cpp and whisper.cpp
+  meta: C++ · JNI · Vulkan · Sep 2026
+  summary:
+    - Microphone to LLM to speech, fully offline. Custom JNI bridges bring llama.cpp (Qwen2.5-1.5B) and whisper.cpp natively into a Kotlin app, with token streaming across the JNI boundary.
+  part:
+    label: The interesting bug
+    text: quantised models gave silently wrong output on the Tensor G5's PowerVR GPU. I traced it to the Vulkan cooperative-matrix and integer-dot-product extensions, and shipped a runtime workaround that restored correct GPU offload.
+
+- id: mcts
+  section: engineering
+  cat: Search · JAX
+  title: Monte Carlo Tree Search Suite
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/MCTS
+  summary:
+    - Classical MCTS through to a full AlphaZero in JAX / Flax NNX, plus a Neural SOR variant, with inference profiled across CPU, Apple Silicon and CUDA.
+
+- id: tree-reduction
+  section: engineering
+  cat: GPU · Android
+  title: Parallel Tree Reduction Engine
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/GpuComputeTest
+  summary:
+    - A Kotlin and C++ Android app that offloads tree-reduction arithmetic to the phone's GPU through Vulkan compute, with manual memory synchronization.
+
+- id: qnaops
+  section: engineering
+  cat: MLOps
+  title: QnAOps
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/QnaOps
+  summary:
+    - A horizontally scaling LLM Q&A platform, load-tested to 30 concurrent pods, with Jenkins CI/CD and ELK observability. Moving inference into its own microservices fixed the out-of-memory crashes.
+
+- id: banditsim
+  section: engineering
+  cat: MLOps · Distributed RL
+  title: BanditSim
+  meta: Kubernetes · Redis · FastAPI · May 2025
+  summary:
+    - Five microservices running parallel Thompson-sampling agents on Kubernetes, with an orchestrator that detects convergence and concept drift. Along the way I tracked 100% packet loss inside the cluster down to a faulty network driver.
+
+- id: cashflow
+  section: engineering
+  cat: Systems · C
+  title: Cashflow
+  meta: POSIX threads · TCP · Sep – Oct 2024
+  summary:
+    - A multi-process, three-tier banking system in C with file locking for atomic record updates, and Argon2 authentication with role-based access control over raw TCP sockets.

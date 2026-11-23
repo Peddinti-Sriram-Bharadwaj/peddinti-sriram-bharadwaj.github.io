@@ -1,0 +1,14 @@
+{
+  "name": "sriram-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "eleventy",
+    "start": "eleventy --serve --port 8080",
+    "check": "eleventy --quiet && node tools/check-links.mjs"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.8",
+    "js-yaml": "^4.3.2"
+  }
+}

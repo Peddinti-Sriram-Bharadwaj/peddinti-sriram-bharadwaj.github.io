@@ -1,0 +1,67 @@
+{#- Reusable building blocks. Import with: {% import "partials/macros.njk" as ui %} -#}
+
+{# A full project entry, as on the Research page. #}
+{% macro project(p) %}
+<div class="entry" id="{{ p.id }}">
+  <span class="cat">{{ p.cat }}</span>
+  <h3>{% if p.url %}<a href="{{ p.url }}">{{ p.title }}</a>{% else %}{{ p.title }}{% endif %}</h3>
+  {% if p.meta %}<span class="meta">{{ p.meta | safe }}</span>{% endif %}
+  {% for para in p.summary %}<p>{{ para | safe }}</p>{% endfor %}
+  {% if p.details %}
+  <details>
+    <summary>{{ p.details.label }}</summary>
+    {% for para in p.details.paras %}<p>{{ para | safe }}</p>{% endfor %}
+  </details>
+  {% endif %}
+  {% if p.part %}<p class="part"><b>{{ p.part.label }}:</b> {{ p.part.text | safe }}</p>{% endif %}
+  {% if p.status %}<span class="status">{{ p.status }}</span>{% endif %}
+  {% if p.links %}<div class="links">{% for l in p.links %}<a href="{{ l.url }}">{{ l.label }} ↗</a>{% endfor %}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{# The short version used on the home page. #}
+{% macro projectTeaser(p) %}
+<div class="entry">
+  <span class="cat">{{ p.home.cat or p.cat }}</span>
+  <h3><a href="/research.html#{{ p.id }}">{{ p.home.title or p.title }}</a></h3>
+  <span class="meta">{{ (p.home.meta or p.meta) | safe }}</span>
+  <p>{{ p.home.summary | safe }}</p>
+</div>
+{% endmacro %}
+
+{# A row in the writing list. #}
+{% macro postCard(post, withCover=false) %}
+<a class="post" href="{{ post.url }}">
+  <span class="cat">{{ post.data.kindLabel }} · {% if post.data.handwritten %}<i>handwritten</i> · {% endif %}{{ post.date | shortDate }}{% if post.data.minutes %} · {{ post.data.minutes }} min{% endif %}</span>
+  <h3>{{ post.data.title }}</h3>
+  {% if withCover and post.data.cover %}<div class="cover graph"><img src="{{ post.data.cover }}" alt="{{ post.data.coverAlt }}" loading="lazy" width="660" height="409"></div>{% endif %}
+  <p>{{ post.data.summary }}</p>
+</a>
+{% endmacro %}
+
+{# Experience / education row. #}
+{% macro row(r) %}
+<div class="row">
+  <h3>{{ r.role }}</h3><span class="when">{{ r.when }}</span>
+  <span class="org">{{ r.org }}</span>
+  {% if r.text %}<p>{{ r.text }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+{# Reading list. #}
+{% macro shelf(books) %}
+<ul class="shelf">
+  {% for b in books %}
+  <li><span><span class="title">{{ b.title }}</span> <span class="by">· {{ b.author }}</span></span><span class="state{% if b.state == 'reading' %} now{% endif %}">{{ b.state }}</span></li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+{# Contact box. #}
+{% macro contact(heading, text, subject="") %}
+<div class="card">
+  <h2>{{ heading }}</h2>
+  <p>{{ text }}</p>
+  <div class="buttons"><a class="primary" href="mailto:{{ site.email }}{% if subject %}?subject={{ subject | urlencode }}{% endif %}">Write to me</a><a href="{{ site.links.linkedin }}">LinkedIn</a></div>
+</div>
+{% endmacro %}

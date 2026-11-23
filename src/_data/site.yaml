@@ -1,0 +1,18 @@
+# Site-wide settings: name, contact links, navigation.
+name: Sriram Bharadwaj
+fullName: Peddinti Sri Ram Bharadwaj
+email: PeddintiSri.Ram@iiitb.ac.in
+cv: /assets/cv.pdf
+description: Sriram Bharadwaj, reinforcement learning researcher. Research on self-play and plasticity, and handwritten essays on art, the absurd and AI.
+
+links:
+  github: https://github.com/Peddinti-Sriram-Bharadwaj
+  linkedin: https://www.linkedin.com/in/sriram-bharadwaj-p/
+  substack: https://substack.com/@srirambharadwaj
+
+nav:
+  - { label: Home, url: / }
+  - { label: Research, url: /research.html }
+  - { label: Writing, url: /writing.html }
+  - { label: Photography, url: /photography.html }
+  - { label: About, url: /about.html }

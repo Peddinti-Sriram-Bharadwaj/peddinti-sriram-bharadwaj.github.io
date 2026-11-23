@@ -1,0 +1,6 @@
+{
+  "layout": "layouts/writing.njk",
+  "permalink": "/writing/{{ page.fileSlug }}.html",
+  "kindLabel": "Essay",
+  "handwritten": true
+}

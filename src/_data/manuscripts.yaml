@@ -1,0 +1,14 @@
+# "Manuscripts & reports" list on the Research page. "me" marks your name in the author list.
+- title: "The SOR Family: A Navigable Continuum of Bellman Training Signals"
+  authors: [me, Raghuram Bharadwaj, Shalabh Bhatnagar]
+  venue: Manuscript under review, 2026.
+  project: sor
+- title: "UBU: Unmeasurability-Based Unlearning for Safe Reinforcement Learning"
+  authors: [me, Raghuram Bharadwaj]
+  venue: Report, IIIT Bangalore, 2026. Not peer-reviewed.
+  pdf: /assets/papers/ubu-unlearning-safe-rl.pdf
+  project: ubu
+- title: "Tacit Collusion in Pricing Agents: Robustness, Detection, and a Mechanistic Probe of a Pricing LLM"
+  authors: [me, Chewon Cho, Gagana MD]
+  venue: Apart Research sprint report, Oct 2026. Not peer-reviewed.
+  project: collusion

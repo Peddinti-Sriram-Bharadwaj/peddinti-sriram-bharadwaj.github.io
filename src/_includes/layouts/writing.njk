@@ -1,0 +1,32 @@
+---
+layout: layouts/base.njk
+---
+<div class="wrap">
+  <div class="article-head" id="main">
+    <span class="kicker">{{ kindLabel }} · {{ "handwritten" if handwritten else "typed" }}</span>
+    <h1>{{ title }}</h1>
+    <div class="meta">
+      <time datetime="{{ page.date | isoDate }}">{{ page.date | longDate }}</time>
+      {% if handwritten %}<span>written by hand</span>{% endif %}
+      {% if minutes %}<span>{{ minutes }} min</span>{% endif %}
+      {% if source %}<a href="{{ source.url }}">{{ source.label }} ↗</a>{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if handwritten %}
+<div class="manuscript graph" role="img" aria-label="Handwritten essay. A typed transcript follows below.">
+  {% for img in pages %}<img src="{{ img.src }}" alt="" width="{{ img.w }}" height="{{ img.h }}"{% if not loop.first %} loading="lazy"{% endif %}>
+  {% endfor %}
+</div>
+<div class="wrap">
+  <details class="transcript">
+    <summary>Read the typed transcript</summary>
+    <div class="prose">{{ content | safe }}</div>
+  </details>
+</div>
+{% else %}
+<div class="wrap"><article class="prose">{{ content | safe }}</article></div>
+{% endif %}
+
+<div class="wrap"><a class="back" href="/writing.html">← All writing</a></div>

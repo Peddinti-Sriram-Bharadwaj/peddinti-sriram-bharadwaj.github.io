@@ -1,0 +1,29 @@
+---
+layout: layouts/base.njk
+title: Writing
+description: Handwritten essays and notes by Sriram Bharadwaj on art, the absurd, and AI.
+permalink: /writing.html
+---
+{% import "partials/macros.njk" as ui with context %}
+<main id="main" class="wrap">
+  <div class="page-head">
+    <h1>Writing</h1>
+    <p>I write most of these by hand, in one sitting. Each handwritten piece comes with a typed transcript.</p>
+  </div>
+
+  <section>
+    <h2 class="label">Handwritten</h2>
+    {% for post in collections.writing %}{% if post.data.handwritten %}{{ ui.postCard(post, true) }}{% endif %}{% endfor %}
+  </section>
+
+  <section>
+    <h2 class="label">Typed</h2>
+    {% for post in collections.writing %}{% if not post.data.handwritten %}{{ ui.postCard(post) }}{% endif %}{% endfor %}
+  </section>
+
+  <div class="card">
+    <h2>Elsewhere</h2>
+    <p>Shorter notes go to Substack first.</p>
+    <div class="buttons"><a class="primary" href="{{ site.links.substack }}">Substack</a></div>
+  </div>
+</main>

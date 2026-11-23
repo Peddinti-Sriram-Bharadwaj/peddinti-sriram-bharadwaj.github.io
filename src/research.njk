@@ -1,0 +1,41 @@
+---
+layout: layouts/base.njk
+title: Research
+description: Research projects, manuscripts and engineering by Sriram Bharadwaj, covering reinforcement learning, self-play, multi-agent pricing and on-device AI.
+permalink: /research.html
+---
+{% import "partials/macros.njk" as ui with context %}
+<main id="main" class="wrap">
+  <div class="page-head">
+    <h1>Research</h1>
+    <p>Reinforcement learning, from how the Bellman update is built to how agents behave when they train against each other.</p>
+    <div class="jump"><a href="#projects">Projects</a><a href="#manuscripts">Manuscripts</a><a href="#engineering">Engineering</a></div>
+  </div>
+
+  <section id="projects">
+    <h2 class="label">Projects</h2>
+    {% for p in projects | where("section", "research") %}{{ ui.project(p) }}{% endfor %}
+
+    <h3 class="label sub">Earlier work<small>generative vision, 2025</small></h3>
+    {% for p in projects | where("section", "earlier") %}{{ ui.project(p) }}{% endfor %}
+  </section>
+
+  <section id="manuscripts">
+    <h2 class="label">Manuscripts &amp; reports</h2>
+    <ol class="plain">
+      {% for m in manuscripts %}
+      <li><b>{{ m.title }}.</b>
+        {% for a in m.authors %}{% if a == "me" %}<span class="sc">{{ site.name }}</span>{% else %}{{ a }}{% endif %}{{ ", " if not loop.last else ". " }}{% endfor %}
+        <i>{{ m.venue }}</i>
+        {% if m.pdf %}<a href="{{ m.pdf }}">PDF</a> · {% endif %}<a href="#{{ m.project }}">More</a></li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section id="engineering">
+    <h2 class="label">Engineering<small>on-device AI, systems, MLOps and open source</small></h2>
+    {% for p in projects | where("section", "engineering") %}{{ ui.project(p) }}{% endfor %}
+  </section>
+
+  {{ ui.contact("Working on something similar?", "If any of this overlaps with your work, I'd like to hear about it.", "About your research") }}
+</main>

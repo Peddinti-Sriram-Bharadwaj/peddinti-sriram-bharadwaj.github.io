@@ -1,0 +1,26 @@
+---
+layout: layouts/base.njk
+title: Photography
+description: Photographs by Sriram Bharadwaj.
+permalink: /photography.html
+---
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Photography</h1>
+      <p>Things I stopped to look at.</p>
+    </div>
+  </div>
+  {# Photos are listed in src/_data/photos.yaml #}
+  <div class="gallery">
+    {% for p in photos.items %}
+    <figure class="plate{% if p.wide %} wide{% endif %}">
+      <img src="{{ p.src }}" alt="{{ p.alt }}" loading="lazy">
+      <figcaption><span class="no">{{ loop.index | pad }}</span>{{ p.title }}{% if p.place %} · {{ p.place }}{% endif %}{% if p.year %}, {{ p.year }}{% endif %}</figcaption>
+    </figure>
+    {% endfor %}
+    {% for i in range(photos.items.length, photos.placeholders) %}
+    <figure class="plate{% if i == 2 %} wide{% endif %}"><div class="slot"><span>photograph forthcoming</span></div><figcaption><span class="no">{{ (i + 1) | pad }}</span></figcaption></figure>
+    {% endfor %}
+  </div>
+</main>

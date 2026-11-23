@@ -1,0 +1,35 @@
+# Content for the About page (and the reading list on Home).
+
+experience:
+  - role: Independent Researcher
+    when: Aug 2026 – present
+    org: Remote
+    text: Continual self-play RL for LLM post-training. A unified multi-agent RL framework across TextArena, OpenSpiel, PettingZoo and JaxMARL. Dual-LoRA adversarial self-play for code repair.
+  - role: Research Intern
+    when: Jan – Jul 2026
+    org: Stochastic Systems Lab, Indian Institute of Science
+    text: Co-advised by Prof. Shalabh Bhatnagar (IISc) and Prof. Raghuram Bharadwaj (IIIT Bangalore) on sample-efficient RL. Co-developed the SOR family of Bellman target updates. Manuscript under review.
+  - role: Freelance Agentic AI Engineer
+    when: Feb – Apr 2025
+    org: Remote
+    text: Built an end-to-end NLU agent system on LangGraph with prompt-injection guardrails, served through FastAPI.
+
+education:
+  - role: M.Tech, Computer Science & Engineering
+    when: 2024 – 2026
+    org: International Institute of Information Technology Bangalore
+  - role: B.Tech, Computer Science & Engineering
+    when: 2020 – 2024
+    org: GITAM Institute of Technology, Visakhapatnam
+  - role: AGI Strategy
+    org: BlueDot Impact
+
+# state: reading | finished
+reading:
+  - { title: The Myth of Sisyphus, author: Albert Camus, state: reading }
+  - { title: The Stranger, author: Albert Camus, state: finished }
+
+skills:
+  - { area: Learning, items: "PyTorch, JAX / Flax, reinforcement learning, measure-theoretic probability" }
+  - { area: Systems, items: "Vulkan / GPGPU, C++ and the Android NDK, Kotlin, Kubernetes" }
+  - { area: Agents, items: "LangGraph, FastAPI, on-device LLMs (Gemini Nano, llama.cpp)" }

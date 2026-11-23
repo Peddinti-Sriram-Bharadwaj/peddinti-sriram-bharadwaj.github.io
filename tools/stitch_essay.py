@@ -3,10 +3,10 @@
 usage: python3 tools/stitch_essay.py "<essay.pdf>" <slug> [first_page_top]
 Works with dark- or light-mode Notes (light pages are inverted to white-on-black;
 the site CSS turns them back into ink on paper).
-writes assets/essays/<slug>/{1..n}.jpg, cover.jpg and prints tile sizes.
+writes src/assets/essays/<slug>/{1..n}.jpg + cover.jpg and scaffolds src/writing/<slug>.md
 needs: pip install pymupdf pillow numpy
 """
-import io, sys, pathlib
+import io, sys, pathlib, datetime
 import numpy as np
 import pymupdf
 from PIL import Image, ImageDraw
@@ -57,7 +57,8 @@ def overlap(a, b):
 
 def main(pdf, slug, first_top=TOP):
     """first_top: crop for page 1 when Notes shows a title/date header (e.g. 300)."""
-    out_dir = pathlib.Path(__file__).resolve().parent.parent / "assets" / "essays" / slug
+    src = pathlib.Path(__file__).resolve().parent.parent / "src"
+    out_dir = src / "assets" / "essays" / slug
     out_dir.mkdir(parents=True, exist_ok=True)
     ims = list(pages(pdf))
     parts = []
@@ -84,12 +85,32 @@ def main(pdf, slug, first_top=TOP):
         cand = [y for y in range(t - 400, min(t + 400, web.height)) if blank[y]]
         cuts.append(min(cand, key=lambda y: abs(y - t)) if cand else t)
     cuts.append(web.height)
+    tiles = []
     for i in range(len(cuts) - 1):
         h = cuts[i + 1] - cuts[i]
         web.crop((0, cuts[i], WEB_W, cuts[i + 1])).save(out_dir / f"{i + 1}.jpg", quality=82, optimize=True, progressive=True)
-        print(f'<img src="../assets/essays/{slug}/{i + 1}.jpg" alt="" width="{WEB_W}" height="{h}" loading="lazy">')
+        tiles.append(f"  - {{ src: /assets/essays/{slug}/{i + 1}.jpg, w: {WEB_W}, h: {h} }}")
     cw = 660
     web.crop((0, 0, WEB_W, int(WEB_W * .62))).resize((cw, int(cw * .62)), Image.LANCZOS).save(out_dir / "cover.jpg", quality=82, optimize=True)
+
+    # Scaffold the essay page unless it already exists.
+    md = src / "writing" / f"{slug}.md"
+    if md.exists():
+        print(f"{md} exists; update its pages: list to:\npages:\n" + "\n".join(tiles))
+        return
+    md.write_text(
+        "---\n"
+        f"title: TODO title\n"
+        f"date: {datetime.date.today().isoformat()}\n"
+        "minutes: 2\n"
+        "summary: TODO one line for the writing list.\n"
+        f"cover: /assets/essays/{slug}/cover.jpg\n"
+        "coverAlt: Opening lines of the handwritten essay.\n"
+        "pages:\n" + "\n".join(tiles) + "\n"
+        "---\n"
+        "TODO: typed transcript, in Markdown.\n"
+    )
+    print(f"wrote {len(tiles)} tiles to {out_dir} and created {md}. Fill in the TODOs.")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,11 @@
+# Home page "News". Newest first. date: YYYY-MM. text may contain HTML links.
+- date: 2026-11
+  text: Two new handwritten essays, <a href="/writing/what-makes-art-human.html">on art and the absurd</a> and <a href="/writing/rlhf-and-human-subjective-experience.html">on RLHF and human subjective experience</a>.
+- date: 2026-10
+  text: Submitted <a href="/research.html#collusion">Tacit Collusion in Pricing Agents</a> to the Apart Research AI Collusion Sprint, with Chewon Cho and Gagana MD.
+- date: 2026-09
+  text: Wrote <a href="/writing/pale-blue-dot.html">a note on choosing research</a> on Substack.
+- date: 2026-08
+  text: Started independent research on continual self-play RL for LLM post-training.
+- date: 2026-07
+  text: Finished my research internship at IISc. The <a href="/research.html#sor">SOR manuscript</a> is under review.

@@ -1,0 +1,51 @@
+---
+layout: layouts/base.njk
+permalink: /
+---
+{% import "partials/macros.njk" as ui with context %}
+<main id="main" class="wrap">
+  <div class="hero">
+    <div>
+      <span class="where">Reinforcement learning · India</span>
+      <h1>I study how agents <em>learn</em>, and what they lose along the way.</h1>
+      <p>I work on continual self-play reinforcement learning for LLM post-training, and on why networks gradually lose the ability to learn. Before this I was a research intern at IISc's Stochastic Systems Lab, where we developed the SOR family of Bellman updates.</p>
+      <p>I write by hand, mostly about art, the absurd, and what AI does to both.</p>
+      <div class="buttons">
+        <a class="primary" href="mailto:{{ site.email }}">Email</a>
+        <a href="{{ site.cv }}">CV</a>
+        <a href="{{ site.links.github }}">GitHub</a>
+        <a href="{{ site.links.linkedin }}">LinkedIn</a>
+        <a href="{{ site.links.substack }}">Substack</a>
+      </div>
+    </div>
+    <div class="portrait"><img src="/assets/photos/portrait.jpg" alt="Portrait of {{ site.name }}" width="640" height="800"></div>
+  </div>
+
+  <section>
+    <h2 class="label">News</h2>
+    <ul class="ledger">
+      {% for item in news %}
+      <li><time datetime="{{ item.date }}">{{ item.date | monthYear }}</time><span>{{ item.text | safe }}</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="label">Writing<small>by hand, mostly</small></h2>
+    {% for post in collections.writing | limit(2) %}{{ ui.postCard(post, post.data.handwritten and loop.last) }}{% endfor %}
+    <p class="more"><a href="/writing.html">All writing →</a></p>
+  </section>
+
+  <section>
+    <h2 class="label">Selected research</h2>
+    {% for p in projects %}{% if p.home %}{{ ui.projectTeaser(p) }}{% endif %}{% endfor %}
+    <p class="more"><a href="/research.html">All research →</a></p>
+  </section>
+
+  <section>
+    <h2 class="label">Reading<small>Camus, and the absurd</small></h2>
+    {{ ui.shelf(about.reading) }}
+  </section>
+
+  {{ ui.contact("Get in touch", "I'm glad to hear from people working on RL, self-play, or AI safety. A short note on the problem you're thinking about is the best way to start.") }}
+</main>

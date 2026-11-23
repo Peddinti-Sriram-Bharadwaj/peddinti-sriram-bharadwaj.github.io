@@ -1,0 +1,50 @@
+---
+layout: layouts/base.njk
+title: About
+description: About Sriram Bharadwaj, covering background, experience, education and reading.
+permalink: /about.html
+---
+{% import "partials/macros.njk" as ui with context %}
+<main id="main" class="wrap">
+  <div class="page-head">
+    <h1>About</h1>
+    <p>Peddinti Sri Ram Bharadwaj, though most people call me Sriram.</p>
+  </div>
+
+  <div class="prose">
+    <p>I am a reinforcement learning researcher. Right now I'm working independently on continual self-play for LLM post-training, and on plasticity collapse: why networks slowly lose the ability to learn when the world they train in keeps changing.</p>
+    <p>I came to this through an M.Tech in Computer Science at IIIT Bangalore and a research internship at IISc's Stochastic Systems Lab, where I co-developed the SOR family of Bellman update rules. I like working at both ends of the stack. On one end is measure-theoretic RL theory. On the other is the machinery underneath it: Vulkan compute shaders on Android, and the build internals of PyTorch and ExecuTorch.</p>
+    <p>Outside the lab I write by hand, take photographs, and I've been reading Camus. The absurd keeps turning up in my essays.</p>
+  </div>
+  <div class="buttons" style="margin-bottom:2rem">
+    <a class="primary" href="mailto:{{ site.email }}">Email</a>
+    <a href="{{ site.cv }}">CV</a>
+    <a href="{{ site.links.github }}">GitHub</a>
+    <a href="{{ site.links.linkedin }}">LinkedIn</a>
+    <a href="{{ site.links.substack }}">Substack</a>
+  </div>
+
+  <section>
+    <h2 class="label">Experience</h2>
+    {% for r in about.experience %}{{ ui.row(r) }}{% endfor %}
+  </section>
+
+  <section>
+    <h2 class="label">Education &amp; certificates</h2>
+    {% for r in about.education %}{{ ui.row(r) }}{% endfor %}
+  </section>
+
+  <section>
+    <h2 class="label">Reading</h2>
+    {{ ui.shelf(about.reading) }}
+  </section>
+
+  <section>
+    <h2 class="label">Tools</h2>
+    <dl class="skills">
+      {% for s in about.skills %}<dt>{{ s.area }}</dt><dd>{{ s.items }}</dd>{% endfor %}
+    </dl>
+  </section>
+
+  {{ ui.contact("Get in touch", "A short note on the problem you're thinking about is the best way to start.") }}
+</main>

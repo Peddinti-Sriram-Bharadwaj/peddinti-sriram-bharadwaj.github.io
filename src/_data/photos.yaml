@@ -1,0 +1,13 @@
+# Photography page. Put image files in src/assets/photos/gallery/ and list them here.
+#   wide: true makes a landscape photo span both columns.
+# While this list is shorter than `placeholders`, empty frames fill the gap.
+placeholders: 5
+items: []
+# Example:
+# items:
+#   - src: /assets/photos/gallery/western-ghats.jpg
+#     alt: Mist over a river valley in the Western Ghats
+#     title: Morning in the Ghats
+#     place: Karnataka
+#     year: 2026
+#     wide: true
