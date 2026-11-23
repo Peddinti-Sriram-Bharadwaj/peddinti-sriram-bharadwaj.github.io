@@ -183,6 +183,8 @@
   part:
     label: Found along the way
     text: a poisoned document could be retrieved as the top chunk and hijack the answer. A pre-filter and prompt hardening blocked all of the injected chunks on-device.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/pixel-nano-assistant" }
 
 - id: voice
   section: engineering
@@ -194,6 +196,8 @@
   part:
     label: The interesting bug
     text: quantised models gave silently wrong output on the Tensor G5's PowerVR GPU. I traced it to the Vulkan cooperative-matrix and integer-dot-product extensions, and shipped a runtime workaround that restored correct GPU offload.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/pixel-offline-assistant" }
 
 - id: mcts
   section: engineering
@@ -204,6 +208,7 @@
     - Classical MCTS through to a full AlphaZero in JAX / Flax NNX, plus a Neural SOR variant, with inference profiled across CPU, Apple Silicon and CUDA.
   links:
     - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/MCTS" }
+    - { label: Android app, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/pixel-mcts" }
 
 - id: tree-reduction
   section: engineering
