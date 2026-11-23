@@ -1,7 +1,7 @@
 """Generate the aged-paper background textures (no drawings, no text: just paper).
 
 usage: python3 tools/make_paper.py [seed]
-writes src/assets/paper-light.jpg and src/assets/paper-dark.jpg
+writes src/assets/paper-light.jpg
 needs: pip install numpy pillow
 
 Layers, from broad to fine: uneven ageing (mottling), tide-line water stains,
@@ -103,4 +103,4 @@ def bake(base_rgb, strength, name):
 
 
 bake((232, 215, 180), 1.0, "paper-light.jpg")   # matches --paper in style.css
-bake((36, 28, 19), .55, "paper-dark.jpg")
+

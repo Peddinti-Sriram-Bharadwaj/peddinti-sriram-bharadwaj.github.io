@@ -16,22 +16,7 @@
   --serif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --measure: 42rem;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* the same paper by candlelight */
-    --paper: #1f1810;
-    --paper-2: rgba(232, 200, 150, .06);
-    --ink: #eadcc0;
-    --ink-2: #c7b494;
-    --ink-3: #94805f;
-    --rule: rgba(232, 200, 150, .16);
-    --accent: #d98a62;
-    --grid: rgba(232, 200, 150, .06);
-    --paper-img: url("paper-dark.jpg");
-    color-scheme: dark;
-  }
+  color-scheme: light;   /* always parchment, even when the OS is in dark mode */
 }
 
 /* ---------- base ---------- */
@@ -212,10 +197,6 @@ section { padding: 2.2rem 0 1.6rem; border-top: 1px solid var(--rule); }
 /* handwritten manuscripts: ink straight onto graph paper */
 .manuscript { max-width: 48rem; margin: .6rem auto 1.6rem; padding: 1.6rem 1rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
 .manuscript img { width: 100%; max-width: 44rem; margin: 0 auto; height: auto; filter: invert(1) hue-rotate(180deg) sepia(.45) contrast(1.08); mix-blend-mode: multiply; opacity: .86; }
-@media (prefers-color-scheme: dark) {
-  .manuscript img, .post .cover img { filter: sepia(.35); mix-blend-mode: screen; }
-}
-
 details.transcript { margin: 1.2rem 0 2rem; border: 1px solid var(--rule); border-radius: 6px; padding: 0 1.2rem; }
 details.transcript summary { cursor: pointer; padding: .9rem 0; font: .8rem/1 var(--mono); color: var(--ink-2); list-style: none; }
 details.transcript summary::-webkit-details-marker { display: none; }
