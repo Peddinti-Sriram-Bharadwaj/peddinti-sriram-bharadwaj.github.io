@@ -120,13 +120,17 @@ def creases():
     """Two old folds: a dark line in the valley and a pale highlight beside it."""
     dark = np.zeros((H, W), np.float32); light = np.zeros((H, W), np.float32)
     yy, xx = np.mgrid[0:H, 0:W]
-    for pos, vertical in ((H * .36, False), (W * .64, True)):
+    for pos, vertical in ((H * .5, False), (W * .5, True), (H * .25, False)):   # folded in half, then again
         along = (yy if vertical else xx).astype(np.float32)
         wob = 9 * np.sin(along / 310 + rng.uniform(0, 6)) + 3 * np.sin(along / 67) + 14 * (along / along.max() - .5)
         d = ((xx if vertical else yy) - pos - wob)
         strength = .55 + .45 * fbm(W, H, 3, 6)
-        dark += np.exp(-(d / 3.5) ** 2) * .22 * strength + np.exp(-(d / 30) ** 2) * .08
-        light += np.exp(-((d - 6) / 4) ** 2) * .3 * strength
+        # a real fold: a sharp valley line, a shadowed slope on one side, a lit slope on the other
+        dark += np.exp(-(d / 2.5) ** 2) * .38 * strength                       # the crease itself
+        dark += np.clip(-d, 0, None) / 70 * np.exp(-(d / 70) ** 2) * .6 * strength    # shadow side
+        dark += np.exp(-(d / 140) ** 2) * .05                                   # the paper sags along it
+        light += np.clip(d, 0, None) / 45 * np.exp(-(d / 45) ** 2) * .55 * strength  # lit side
+        light += np.exp(-((d - 4) / 2.5) ** 2) * .35 * strength                 # the ridge catching light
     return dark, light
 
 
@@ -165,6 +169,7 @@ def make_sheet():
         + .35 * foxing(90, 8)                      # brown specks
         + .10 * np.clip((fbm(W, H, 5, 5, aniso=(20, 1)) - .5) * 2.2, 0, 1)   # drag streaks
         + .55 * worn_edges()
+        + .36 * edges()                            # the broad vignette: the sheet darkens toward its edges
         + .16 * grain()
         + dark_c
     )
@@ -176,11 +181,61 @@ def make_sheet():
     paper = paper * (1 - tint * .35) + paper * olive / olive.max() * tint * .35
     fox = rust_foxing()[..., None]
     paper = paper * (1 - fox * (1 - rust) * .72)                   # rust spots multiply into the sheet
-    paper = paper + (1 - paper) * (.22 * light_c + .25 * scratches())[..., None]   # pale crease ridges and scuffs
+    paper = paper + (1 - paper) * (.30 * light_c + .25 * scratches())[..., None]   # pale crease ridges and scuffs
     Image.fromarray(np.clip(paper * 255, 0, 255).astype(np.uint8)).save(
         OUT / "paper.jpg", quality=84, optimize=True, progressive=True)
     c = paper[H // 2 - 300:H // 2 + 300, W // 2 - 500:W // 2 + 500].mean(axis=(0, 1)) * 255
     print("wrote", OUT / "paper.jpg", "centre colour", c.astype(int))
+
+
+# ---------------------------------------------------------------- tears
+def make_tears():
+    """Torn-away paper as a transparent overlay (it sits above the grid and sketches):
+    a missing corner, rips and nicks along the borders, and a small slit. Where paper is
+    missing you see a dark backing; along each tear, a band of pale torn fibres."""
+    from PIL import ImageDraw
+    missing = Image.new("L", (W, H), 0); dm = ImageDraw.Draw(missing)
+
+    def ragged(p0, p1, n=60, amp=14):
+        t = np.linspace(0, 1, n)
+        x = p0[0] + (p1[0] - p0[0]) * t; y = p0[1] + (p1[1] - p0[1]) * t
+        nx, ny = -(p1[1] - p0[1]), p1[0] - p0[0]; L = np.hypot(nx, ny) + 1e-9
+        off = (fbm(n, 1, 5, 5, persist=.6)[0] - .5) * 2 * amp + rng.normal(0, amp * .08, n)   # torn paper wanders; it isn't a saw blade
+        return list(zip(x + nx / L * off, y + ny / L * off))
+
+    # a corner torn away (top right)
+    edge = ragged((W - 330, -10), (W + 10, 250), 90, 18)
+    dm.polygon(edge + [(W + 10, -10)], fill=255)
+    # a bite out of the bottom-left corner
+    edge = ragged((-10, H - 170), (210, H + 10), 70, 14)
+    dm.polygon(edge + [(-10, H + 10)], fill=255)
+    # nicks along the borders: small triangular rips
+    for _ in range(6):
+        side = rng.integers(4); depth = rng.uniform(14, 40); width = rng.uniform(30, 80)
+        if side in (0, 1):
+            x = rng.uniform(150, W - 450); y0 = -5 if side == 0 else H + 5; sgn = 1 if side == 0 else -1
+            pts = ragged((x, y0), (x + width * .4, y0 + sgn * depth), 14, 4) + ragged((x + width * .4, y0 + sgn * depth), (x + width, y0), 14, 4)
+        else:
+            y = rng.uniform(300, H - 300); x0 = -5 if side == 2 else W + 5; sgn = 1 if side == 2 else -1
+            pts = ragged((x0, y), (x0 + sgn * depth, y + width * .4), 14, 4) + ragged((x0 + sgn * depth, y + width * .4), (x0, y + width), 14, 4)
+        dm.polygon(pts, fill=255)
+    # a slit tear running in from the left edge, a few millimetres open
+    a = ragged((-5, H * .64), (230, H * .64 + 55), 50, 5); b = ragged((230, H * .64 + 55), (-5, H * .64 + 16), 50, 5)
+    dm.polygon(a + b, fill=255)
+
+    m = np.asarray(missing, np.float32) / 255
+    soft = blur(m, 1.2)
+    fibres = np.clip(blur(m, 3.5) - m, 0, 1) * 2.2                            # a thin band just inside each tear
+    fibres = np.clip(fibres * (.55 + .9 * fbm(W, H, 3, 160)), 0, 1)          # torn fibres are uneven and furry
+    shadow = np.clip(blur(m, 9) - m, 0, 1) * 0                                # (backing sits below; no drop shadow outward)
+    backing = np.array((46, 33, 22), np.float32) / 255
+    back_tex = backing * (.8 + .4 * fbm(W, H, 4, 20))[..., None]
+    inner_shade = np.clip(1 - blur(1 - m, 10), 0, 1)                          # backing darker near the paper's edge
+    rgb = np.where(m[..., None] > .5, back_tex * (1 - .35 * inner_shade[..., None]), np.array((228, 212, 172), np.float32) / 255)   # torn fibres: paler than the aged face, not white
+    alpha = np.clip(soft + fibres * .6 + shadow, 0, 1)
+    rgba = np.dstack([np.clip(rgb * 255, 0, 255), alpha * 255]).astype(np.uint8)
+    Image.fromarray(rgba, "RGBA").save(OUT / "tears.png", optimize=True)
+    print("wrote", OUT / "tears.png")
 
 
 # ---------------------------------------------------------------- the scratched grid
@@ -235,3 +290,4 @@ def make_grid():
 
 make_sheet()
 make_grid()
+make_tears()
