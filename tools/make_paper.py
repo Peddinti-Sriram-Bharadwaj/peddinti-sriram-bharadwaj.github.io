@@ -84,8 +84,10 @@ def foxing(n, clusters):
 
 def edges():
     yy, xx = np.mgrid[0:H, 0:W]
-    v = ((xx - W / 2) / (W / 2)) ** 2 * .85 + ((yy - H / 2) / (H / 2)) ** 2
-    return np.clip(v - .28, 0, None) ** 1.3 * (.65 + .7 * fbm(W, H, 3, 4))
+    # an oval falloff that starts near the centre; the vertical term is boosted because
+    # wide screens crop the top and bottom of the sheet away
+    v = ((xx - W / 2) / (W / 2)) ** 2 * .8 + ((yy - H / 2) / (H / 2)) ** 2 * 1.35
+    return np.clip(v - .1, 0, None) ** 1.15 * (.75 + .5 * fbm(W, H, 3, 4))
 
 
 def grain():
@@ -169,7 +171,7 @@ def make_sheet():
         + .35 * foxing(90, 8)                      # brown specks
         + .10 * np.clip((fbm(W, H, 5, 5, aniso=(20, 1)) - .5) * 2.2, 0, 1)   # drag streaks
         + .55 * worn_edges()
-        + .36 * edges()                            # the broad vignette: the sheet darkens toward its edges
+        + .52 * edges()                            # the broad vignette: the sheet darkens toward its edges
         + .16 * grain()
         + dark_c
     )
