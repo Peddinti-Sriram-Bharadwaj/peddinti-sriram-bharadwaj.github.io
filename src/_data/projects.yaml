@@ -145,6 +145,47 @@
   links:
     - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/dormat_RL" }
 
+- id: karma-rl
+  section: research
+  cat: RL · LLM agents · Existentialism
+  title: "karma-rl: The Samskara Loop"
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/karma-rl
+  meta: Independent · Nov 2026
+  summary:
+    - "An LLM agent in a reward world that changes itself without backprop. The world is a hill with a boulder that rolls back at the top, a stranger carrying a load, a counter, and a button that adds 1000 to the counter and changes nothing else. After each day the agent reflects and rewrites its own creed. It is never given a philosophy or told to maximise anything."
+    - "Unannounced, the reward goes from meaningful, to random noise, to dark. The question is what the agent comes to believe when the reward turns out to be hollow: Sisyphus, as an RL experiment."
+  details:
+    label: How it works
+    paras:
+      - Combines Reflexion (verbal RL through self-reflection memory) with OPRO-style self-rewriting, except that what gets rewritten is the agent's identity. Runs on qwen3:4b through Ollama with native thinking, so every decision and every creed rewrite has a visible chain of thought, shown live in a viewer.
+  status: Experiment · in progress
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/karma-rl" }
+  home:
+    title: "karma-rl: Sisyphus as an RL experiment"
+    cat: LLM agents · Existentialism
+    meta: Independent · Nov 2026
+    summary: An agent that rewrites its own creed after each day, while its reward quietly goes from meaningful to noise to silence. What does it come to believe?
+
+- id: dqn-learn
+  section: research
+  cat: RL theory · Replication
+  title: "Does DQN Learn? A Replication"
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/dqn-learn
+  meta: Independent · Oct 2026 · replicating Gopalan &amp; Thoppe (arXiv 2205.13617)
+  summary:
+    - The paper proves that linear DQN can converge to a policy worse than the one it started from, even the worst policy, while seeing every state-action pair infinitely often. I rebuilt its differential-inclusion analysis and its experiments from scratch.
+  details:
+    label: Findings
+    paras:
+      - The limiting dynamics and the three behaviours from a single start both replicate. On the Fig. 3b MDP, every start of the expected dynamics ends at the worst policy, a global attractor, as the paper claims.
+      - "One discrepancy: a fifth zero of the dynamics that the paper doesn't list, an unstable point on the boundary between two greedy regions. I confirmed it with a brute-force scan. It is repelling, so none of the paper's conclusions change."
+      - I also ported the authors' notebook, with a mode that keeps its original bugs and one that fixes them.
+  status: Completed · code and plots public
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/dqn-learn" }
+    - { label: Paper, url: "https://arxiv.org/abs/2205.13617" }
+
 - id: controlnet-car
   section: earlier
   cat: Diffusion · ControlNet
@@ -198,6 +239,20 @@
     text: quantised models gave silently wrong output on the Tensor G5's PowerVR GPU. I traced it to the Vulkan cooperative-matrix and integer-dot-product extensions, and shipped a runtime workaround that restored correct GPU offload.
   links:
     - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/pixel-offline-assistant" }
+
+- id: nano-agent
+  section: engineering
+  cat: On-device AI · Android · Agents
+  title: Offline Agent Actions on Gemini Nano
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/pixel-nano-agent
+  meta: Kotlin · AICore · Nov 2026
+  summary:
+    - Natural-language commands like “turn on the flashlight” or “set an alarm for 7am” become real Android actions, entirely on-device. Gemini Nano's API has no native tool calling, so the model is constrained to emit one instance of a fixed, typed action schema, and a single dispatcher is the only code that can touch the system. That is a smaller attack surface than free-form tool calls.
+  part:
+    label: Found along the way
+    text: structured output fails silently on the Pixel 10 Pro's current AICore build, with no logs at all. I traced it to a client-side capability check by decompiling the SDKs, and made the agent fall back to prompted JSON.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/random-experiments/tree/master/pixel-nano-agent" }
 
 - id: mcts
   section: engineering
