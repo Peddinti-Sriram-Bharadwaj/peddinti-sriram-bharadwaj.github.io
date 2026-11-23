@@ -35,9 +35,18 @@ body {
    (a positioned layer rather than background-attachment: fixed, which iOS ignores) */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  /* grid.svg: the hand-scratched grid, vector so it stays sharp; paper.jpg: the aged sheet.
-     Both are drawn in the same 2400×1650 frame and scaled with cover, so they line up. */
+  /* sketches.svg: faint notebook sketches (tools/make_sketches.py); grid.svg: the hand-scratched grid;
+     paper.jpg: the aged sheet (tools/make_paper.py). All share one 2400×1650 frame and scale with cover, so they line up. */
   background: url("grid.svg") center / cover no-repeat, var(--paper-img) center / cover no-repeat;
+}
+/* the sketches, on their own layer, faded out behind the text column at any screen width
+   so they never compete with what you're reading */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: url("sketches.svg") center / cover no-repeat;
+  --clear: calc(var(--measure) / 2 + 1rem);
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(50% - var(--clear) - 5rem), transparent calc(50% - var(--clear)), transparent calc(50% + var(--clear)), #000 calc(50% + var(--clear) + 5rem), #000 100%);
+          mask-image: linear-gradient(to right, #000 0, #000 calc(50% - var(--clear) - 5rem), transparent calc(50% - var(--clear)), transparent calc(50% + var(--clear)), #000 calc(50% + var(--clear) + 5rem), #000 100%);
 }
 ::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-decoration-thickness: 1px; text-underline-offset: .18em; }

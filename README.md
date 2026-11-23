@@ -22,6 +22,8 @@ git push           # GitHub Actions builds, checks and deploys
 | Essays and notes                   | `src/writing/*.md` (one file each)     |
 | Intro text on Home / About         | `src/index.njk`, `src/about.njk`       |
 | Look and feel                      | `src/assets/style.css`                 |
+| Paper, stains, scratched grid      | `python3 tools/make_paper.py [seed]`   |
+| Background sketches & equations    | `python3 tools/make_sketches.py [seed]` (edit the page section at the bottom) |
 | Header, footer, shared components  | `src/_includes/`                       |
 
 Content is data; templates only decide how it looks. Every page shares one header, footer and stylesheet.
