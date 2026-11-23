@@ -11,4 +11,24 @@
     </div>
   </div>
 </aside>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="pad-ink" x="-15%" y="-30%" width="130%" height="160%" color-interpolation-filters="sRGB">
+    <!-- ragged nib edges -->
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3" result="grain"/>
+    <feDisplacementMap in="SourceGraphic" in2="grain" scale="2.2" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+    <!-- ink wicking into the paper fibres: a feathered, uneven halo -->
+    <feGaussianBlur in="rough" stdDeviation="1.6" result="soak"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".35" numOctaves="2" seed="8" result="fibre"/>
+    <feDisplacementMap in="soak" in2="fibre" scale="5" xChannelSelector="R" yChannelSelector="B" result="feather"/>
+    <feComponentTransfer in="feather" result="bleed"><feFuncA type="linear" slope=".55"/></feComponentTransfer>
+    <!-- a wider, fainter stain where the nib paused -->
+    <feGaussianBlur in="rough" stdDeviation="3.5" result="pool"/>
+    <feComponentTransfer in="pool" result="halo"><feFuncA type="linear" slope=".22"/></feComponentTransfer>
+    <!-- uneven ink load: some strokes darker, some starved -->
+    <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="21" result="load"/>
+    <feColorMatrix in="load" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 0 0 0 -.05" result="loadA"/>
+    <feComposite in="rough" in2="loadA" operator="in" result="body"/>
+    <feMerge><feMergeNode in="halo"/><feMergeNode in="bleed"/><feMergeNode in="body"/><feMergeNode in="body"/></feMerge>
+  </filter>
+</svg>
 <script type="module" src="/assets/js/voyager-pad.js"></script>

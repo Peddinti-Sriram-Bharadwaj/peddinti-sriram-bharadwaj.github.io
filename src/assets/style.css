@@ -259,7 +259,7 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
 /* ---------- Voyager 1 tear-off pad: a scrap of notebook paper, not a widget ---------- */
 .voyager {
   --slip: #ead9b4;
-  width: 15rem; margin: 2.5rem 0 0; color: var(--ink);
+  width: 17rem; margin: 2.5rem 0 0; color: var(--ink);
   font-variant-numeric: lining-nums tabular-nums;
   transform: rotate(-2.2deg);
   perspective: 700px;
@@ -290,11 +290,16 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
     url("paper.jpg") 35% 45% / 900px auto;
   filter: drop-shadow(0 1px 1px rgba(60, 35, 10, .25));
 }
-.pad-label { font: 500 .86rem/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-.pad-line { display: flex; align-items: baseline; justify-content: center; gap: .35rem; margin-top: .25rem; }
-.pad-num { font: 700 1.42rem/1.1 var(--serif); color: var(--ink); }
-.pad-unit { font: italic 1rem/1 var(--serif); color: var(--ink-2); }
-.pad-note { margin: .35rem 0 0; font: italic .88rem/1.25 var(--serif); color: var(--ink-2); }
+@font-face { font-family: "Hand"; src: url("fonts/LaBelleAurore.ttf") format("truetype"); font-display: swap; }
+/* all the pad's writing is by hand, in sepia ink that has bled into the paper */
+.pad-sheet .pad-label, .pad-sheet .pad-line, .pad-sheet .pad-note,
+.pad-falling .pad-label, .pad-falling .pad-line, .pad-falling .pad-note { filter: url(#pad-ink); }
+.pad-label { font: 1.12rem/1.2 "Hand", cursive; color: #5a2a10; transform: rotate(-1.2deg); }
+.pad-line { display: flex; align-items: baseline; justify-content: center; gap: .4rem; margin-top: .2rem; white-space: nowrap; }
+.pad-num { font: 1.6rem/1.15 "Hand", cursive; color: #3b1a08; letter-spacing: .02em; }
+.pad-num span { display: inline-block; }
+.pad-unit { font: 1.1rem/1 "Hand", cursive; color: #5a2a10; }
+.pad-note { margin: .3rem 0 0; font: .92rem/1.25 "Hand", cursive; white-space: nowrap; color: #5a2a10; transform: rotate(.8deg); }
 
 /* tearing: rips at the top-right corner first (the corner curls up), then along the rest of
    the top edge as the slip swings from its last hold at the top-left, then it drops */

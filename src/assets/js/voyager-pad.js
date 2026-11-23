@@ -15,7 +15,11 @@ if (pad) {
 
   const render = () => {
     const km = voyagerFromEarthKm();
-    num.textContent = group(km);
+    // written digit by digit: each a little tilted and off the line, as a hand writes
+    num.innerHTML = [...group(km)].map((ch) => {
+      const r = (Math.random() - .5) * 7, y = (Math.random() - .5) * 2.6;
+      return `<span style="transform:translateY(${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg)">${ch}</span>`;
+    }).join("");
     const s = km / C_KM_S, h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
     note.textContent = `its signal takes ${h} h ${m} min to reach us`;
     pad.setAttribute("aria-label", `Voyager 1 is ${group(km)} kilometres from Earth`);
