@@ -35,6 +35,13 @@ permalink: /about.html
   </section>
 
   <section>
+    <h2 class="label">Guiding lights<small>from the acknowledgements of my M.Tech thesis</small></h2>
+    <blockquote class="ack">
+      {% for para in about.acknowledgement %}<p>{{ para }}</p>{% endfor %}
+    </blockquote>
+  </section>
+
+  <section>
     <h2 class="label">Reading</h2>
     {{ ui.shelf(about.reading) }}
   </section>

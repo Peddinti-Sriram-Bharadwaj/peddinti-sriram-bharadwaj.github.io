@@ -8,7 +8,7 @@ experience:
   - role: Research Intern
     when: Jan – Jul 2026
     org: Stochastic Systems Lab, Indian Institute of Science
-    text: Co-advised by Prof. Shalabh Bhatnagar (IISc) and Prof. Raghuram Bharadwaj (IIIT Bangalore) on sample-efficient RL. Co-developed the SOR family of Bellman target updates. Manuscript under review.
+    text: Co-advised by Prof. Shalabh Bhatnagar (IISc) and Prof. Raghuram Bharadwaj (IIIT Bangalore) on sample-efficient RL. Co-developed the SOR family of Bellman training signals, now under review at AISTATS 2027.
   - role: Freelance Agentic AI Engineer
     when: Feb – Apr 2025
     org: Remote
@@ -33,3 +33,8 @@ skills:
   - { area: Learning, items: "PyTorch, JAX / Flax, reinforcement learning, measure-theoretic probability" }
   - { area: Systems, items: "Vulkan / GPGPU, C++ and the Android NDK, Kotlin, Kubernetes" }
   - { area: Agents, items: "LangGraph, FastAPI, on-device LLMs (Gemini Nano, llama.cpp)" }
+
+# From the acknowledgements of my M.Tech thesis. Shown on the About page.
+acknowledgement:
+  - Finally, I wish to acknowledge the stories and figures that have shaped who I am. I thank Optimus Prime, my fictional mentor since childhood, for instilling in me a deep sense of nobility and honor. I thank the manga artist Koyoharu Gotouge for creating the emotionally complex character of Kokushibo, who — during my most difficult times — served as a stark reminder of the destructive potential of unchecked negative emotion, and helped me find my way back to the light. And I thank Naruto and Thor, whose stories taught me never to give up and never to abandon one’s principles, no matter how arduous the road.
+  - "I have willingly sacrificed peace, immediate financial certainty, and immediate comfort in pursuit of greater capability and intellectual depth. The figures named here, real and fictional alike, have been a guiding light: a reminder of what one can become, the price that mastery demands, and the courage required to be, unapologetically, who one wishes to be."

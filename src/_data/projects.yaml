@@ -39,23 +39,27 @@
 - id: sor
   section: research
   cat: RL theory · Numerical linear algebra
-  title: "The SOR Family: A Navigable Continuum of Bellman Training Signals"
+  title: "The SOR Family: A Navigable Continuum of Bellman Training Signals for Deep Reinforcement Learning"
   meta: <b>Sriram Bharadwaj</b>, Raghuram Bharadwaj (IIIT Bangalore), Shalabh Bhatnagar (IISc) · Stochastic Systems Lab, IISc · 2026
   summary:
-    - Successive Over-Relaxation, applied to the Bellman target, gives a continuum of temporal-difference update rules controlled by one relaxation factor ω. Standard and accelerated TD targets fall out as special cases, and it costs nothing extra to add to a Deep Q-Network.
+    - Successive Over-Relaxation (SOR) is a classical trick for speeding up fixed-point iterations, and it is a two-line change to a deep Q-learning target. We ask what it actually changes. SOR does not just accelerate the Bellman update. It converges to a different fixed point, Q<sub>ω</sub> = ωQ* + (1 − ω)V*, which keeps the optimal policy but stretches every action gap by ω. So each ω is its own training target, with its own best learning rate.
   details:
-    label: Results
+    label: Findings and limits
     paras:
-      - "Up to 65% better performance on Atari environments with Bayesian-optimised ω, and LunarLander-v3 solved in under 160 episodes, with statistical significance checked. The family also carries over to tree search: a TD-SOR variant of AlphaZero applies the relaxed targets to self-play value learning."
+      - <em>What it is.</em> An SOR step is exactly an advantage-learning step taken ω times larger.
+      - <em>When it is stable.</em> α ≤ 1 and ω ≤ ω* guarantee convergence from any start, and the condition predicts where deep Q-learning diverges in a gridworld.
+      - <em>Where it helps.</em> In planning, where states repeat, a safe ω can be computed from the model with no tuning. Set this way, it converged on all 72 fresh MDPs and 36 games.
+      - <em>Deep Q-learning.</em> With Adam and tuned learning rates, the speed advantage is largely absorbed. The wider action gaps remain, and the effect of ω depends on the learning rate. Every gain we report survives repeated hyperparameter searches, Holm-corrected tests and pre-registered held-out replications.
+      - <em>Limits.</em> The exact analyses use small MDPs and linear features. The neural experiments cover classic control and MinAtar; on Atari we ran only searches.
   part:
     label: My part
-    text: co-developed the update rules; built the orchestration that ran parallel hyperparameter sweeps across 6+ GPUs, and the Optuna/SQLite auditing that measures how ω affects gradient stability, sample complexity and seed robustness; implemented the AlphaZero variant in JAX.
-  status: Manuscript under review
+    text: co-developed the update rules; built the orchestration that ran parallel hyperparameter sweeps across 6+ GPUs, and the Optuna/SQLite auditing behind the repeated-search evaluation; implemented a TD-SOR AlphaZero variant in JAX.
+  status: Under review at AISTATS 2027
   home:
-    title: The SOR Family of Bellman Updates
+    title: The SOR Family of Bellman Training Signals
     cat: RL theory
-    meta: IISc Stochastic Systems Lab · 2026 · under review
-    summary: A single relaxation factor ω that unifies TD-learning update rules. Up to 65% better on Atari. With Raghuram Bharadwaj and Shalabh Bhatnagar.
+    meta: IISc Stochastic Systems Lab · under review at AISTATS 2027
+    summary: Over-relaxing the Bellman update doesn't just speed it up. It changes the fixed point and widens every action gap. With Raghuram Bharadwaj and Shalabh Bhatnagar.
 
 - id: ubu
   section: research
@@ -72,7 +76,8 @@
       - <em>Limits.</em> Both experiments are controlled proofs of concept. Real encoders are continuous, so the separation is only approximate, and an adversary who learns the manifold geometry is still an open problem.
   status: Report · not peer-reviewed
   links:
-    - { label: PDF, url: /assets/papers/ubu-unlearning-safe-rl.pdf }
+    - { label: PDF, url: "/assets/papers/ubu-unlearning-safe-rl.pdf" }
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/UBU-SafeRL" }
   home:
     title: "UBU: Unmeasurability-Based Unlearning"
     cat: RL theory · AI safety
@@ -83,10 +88,13 @@
   section: research
   cat: RL · LLM post-training
   title: Continual Self-Play RL
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/qwen_self_play
   meta: Independent · Aug 2026 – present
   summary:
     - "A multi-agent self-play framework on Qwen2.5 that brings REINFORCE, REINFORCE++, DAPO and GRPO under one roof. I use it to study plasticity collapse: networks losing the ability to learn when their environment keeps changing. The framework spans TextArena, OpenSpiel, PettingZoo and JaxMARL, and includes a dual-LoRA adversarial self-play setup for code repair."
   status: Active · in progress
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/qwen_self_play" }
   home:
     title: Continual Self-Play
     cat: RL · LLM post-training
@@ -110,6 +118,7 @@
   section: research
   cat: RL · Reward design · Vision-language models
   title: "VLM-RDA: Multimodal Reward Design Agent"
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/Reward-Design-Agent
   meta: Independent · Aug 2026 – present
   summary:
     - Text-only reward-design agents like Eureka only see numbers, so they miss reward hacking you can only see. This pipeline feeds evaluation videos straight to a vision-language model, which can spot failures like “zombie dragging” and rewrite the reward code.
@@ -120,6 +129,8 @@
       - <em>Memory and rollback.</em> A bipartite memory maps visual anomalies to specific reward-code variables, and an elitism rule rolls back to the last stable reward when training diverges.
       - <em>Backend.</em> A custom PyTorch Conservative Reliable Policy Iteration (CRPI) implementation alongside stable-baselines3 PPO, SAC and TD3, with Optuna sweeps and SLURM deployment.
   status: Active · in progress
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/Reward-Design-Agent" }
 
 - id: dormant
   section: research
@@ -157,6 +168,10 @@
   meta: Dec 2025 – Jan 2026
   summary:
     - Fixed Ninja build failures in ExecuTorch's Vulkan backend (#16354, #14984) by restructuring <code>ShaderLibrary.cmake</code> to drop wildcard dependencies that custom commands don't support. Verified with a clean cross-compile for Android arm64-v8a and a MobileNetV2 run on a real device.
+  links:
+    - { label: "Issue #16354", url: "https://github.com/pytorch/executorch/issues/16354" }
+    - { label: "Issue #14984", url: "https://github.com/pytorch/executorch/issues/14984" }
+    - { label: My fork, url: "https://github.com/Peddinti-Sriram-Bharadwaj/executorch" }
 
 - id: rag
   section: engineering
@@ -187,6 +202,8 @@
   url: https://github.com/Peddinti-Sriram-Bharadwaj/MCTS
   summary:
     - Classical MCTS through to a full AlphaZero in JAX / Flax NNX, plus a Neural SOR variant, with inference profiled across CPU, Apple Silicon and CUDA.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/MCTS" }
 
 - id: tree-reduction
   section: engineering
@@ -195,6 +212,8 @@
   url: https://github.com/Peddinti-Sriram-Bharadwaj/GpuComputeTest
   summary:
     - A Kotlin and C++ Android app that offloads tree-reduction arithmetic to the phone's GPU through Vulkan compute, with manual memory synchronization.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/GpuComputeTest" }
 
 - id: qnaops
   section: engineering
@@ -203,19 +222,27 @@
   url: https://github.com/Peddinti-Sriram-Bharadwaj/QnaOps
   summary:
     - A horizontally scaling LLM Q&A platform, load-tested to 30 concurrent pods, with Jenkins CI/CD and ELK observability. Moving inference into its own microservices fixed the out-of-memory crashes.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/QnaOps" }
 
 - id: banditsim
   section: engineering
   cat: MLOps · Distributed RL
   title: BanditSim
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/banditSim
   meta: Kubernetes · Redis · FastAPI · May 2025
   summary:
     - Five microservices running parallel Thompson-sampling agents on Kubernetes, with an orchestrator that detects convergence and concept drift. Along the way I tracked 100% packet loss inside the cluster down to a faulty network driver.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/banditSim" }
 
 - id: cashflow
   section: engineering
   cat: Systems · C
   title: Cashflow
+  url: https://github.com/Peddinti-Sriram-Bharadwaj/CashFlow
   meta: POSIX threads · TCP · Sep – Oct 2024
   summary:
     - A multi-process, three-tier banking system in C with file locking for atomic record updates, and Argon2 authentication with role-based access control over raw TCP sockets.
+  links:
+    - { label: Code, url: "https://github.com/Peddinti-Sriram-Bharadwaj/CashFlow" }

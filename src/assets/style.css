@@ -238,3 +238,8 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
   .manuscript { padding: 1rem .25rem; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* thesis acknowledgement */
+.ack { margin: 0; padding: .2rem 0 .2rem 1.2rem; border-left: 2px solid var(--accent); color: var(--ink-2); font-style: italic; }
+.ack p { margin: 0 0 1em; }
+.ack p:last-child { margin-bottom: 0; }
