@@ -255,3 +255,53 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
 .ack { margin: 0; padding: .2rem 0 .2rem 1.2rem; border-left: 2px solid var(--accent); color: var(--ink-2); font-style: italic; }
 .ack p { margin: 0 0 1em; }
 .ack p:last-child { margin-bottom: 0; }
+
+/* ---------- Voyager 1 tear-off pad ---------- */
+.voyager {
+  width: 15.5rem; margin: 2rem 0 0; color: var(--ink);
+  font-variant-numeric: lining-nums tabular-nums;
+  transform: rotate(-1.6deg);
+}
+@media (min-width: 1180px) {
+  .voyager { position: fixed; right: 2.6rem; bottom: 3rem; margin: 0; z-index: 2; }
+}
+.pad-binding {
+  display: flex; justify-content: space-between; gap: .5rem;
+  padding: .45rem .8rem .55rem;
+  font: 500 .72rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #efe2c4;
+  background: linear-gradient(rgba(60, 40, 22, .9), rgba(46, 31, 17, .95)), url("paper.jpg") 70% 20% / 700px auto;
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
+  position: relative; z-index: 3;
+}
+.pad-sheets { position: relative; }
+.pad-sheet {
+  padding: .85rem .8rem .7rem; text-align: center;
+  /* an old slip: the sheet's own texture, lightened, with a little browning at the top */
+  background:
+    linear-gradient(180deg, rgba(110, 70, 30, .16), transparent 35%),
+    linear-gradient(rgba(244, 232, 204, .72), rgba(238, 224, 192, .72)),
+    url("paper.jpg") 30% 40% / 900px auto;
+  /* the edges of the slips still waiting underneath */
+  box-shadow:
+    0 1px 0 #d8c69e, 0 2px 0 #ece0c0, 0 3px 0 #d2bf95, 0 4px 0 #e7d9b6, 0 5px 0 #cdb98d,
+    0 8px 14px -4px rgba(50, 30, 10, .35);
+  border-radius: 0 0 2px 2px;
+}
+.pad-num { font: 700 1.45rem/1 var(--serif); letter-spacing: .01em; }
+.pad-unit { font: 500 .9rem/1 var(--mono); color: var(--ink-3); }
+.pad-line { display: flex; align-items: baseline; justify-content: center; gap: .35rem; }
+.pad-note { margin: .45rem 0 0; font: italic .9rem/1.25 var(--serif); color: var(--ink-2); }
+
+.pad-falling {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  box-shadow: 0 6px 12px -4px rgba(50, 30, 10, .35);
+  transform-origin: 8% 0;
+  animation: pad-tear 1.15s cubic-bezier(.45, 0, .7, .2) forwards;
+}
+@keyframes pad-tear {
+  0%   { transform: none; opacity: 1; }
+  18%  { transform: rotate(calc(var(--spin) * .18)) translateY(2px); }       /* the rip starts at one side */
+  100% { transform: translate(var(--drift), 170px) rotate(var(--spin)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .pad-falling { display: none; } }
