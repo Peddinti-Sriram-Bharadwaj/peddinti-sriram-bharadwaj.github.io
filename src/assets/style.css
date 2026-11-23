@@ -256,52 +256,71 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
 .ack p { margin: 0 0 1em; }
 .ack p:last-child { margin-bottom: 0; }
 
-/* ---------- Voyager 1 tear-off pad ---------- */
+/* ---------- Voyager 1 tear-off pad: a scrap of notebook paper, not a widget ---------- */
+@font-face { font-family: "Hand"; src: url("fonts/LaBelleAurore.ttf") format("truetype"); font-display: swap; }
 .voyager {
-  width: 15.5rem; margin: 2rem 0 0; color: var(--ink);
+  --slip: #ead9b4;
+  width: 15rem; margin: 2.5rem 0 0; color: var(--ink);
   font-variant-numeric: lining-nums tabular-nums;
-  transform: rotate(-1.6deg);
+  transform: rotate(-2.2deg);
+  perspective: 700px;
 }
+@media (max-width: 1179px) { .voyager { --fall: 240px; } }   /* inline in the footer: a short drop */
 @media (min-width: 1180px) {
-  .voyager { position: fixed; right: 2.6rem; bottom: 3rem; margin: 0; z-index: 2; }
+  .voyager { position: fixed; right: 2.8rem; bottom: 3.4rem; margin: 0; z-index: 2; }
 }
-.pad-binding {
-  display: flex; justify-content: space-between; gap: .5rem;
-  padding: .45rem .8rem .55rem;
-  font: 500 .72rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #efe2c4;
-  background: linear-gradient(rgba(60, 40, 22, .9), rgba(46, 31, 17, .95)), url("paper.jpg") 70% 20% / 700px auto;
-  border-radius: 3px 3px 0 0;
-  box-shadow: 0 1px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
-  position: relative; z-index: 3;
+/* ragged stubs left behind by slips already torn off */
+.pad-stub {
+  height: 11px; margin: 0 2px -1px;
+  background: linear-gradient(rgba(90, 60, 25, .25), rgba(90, 60, 25, .1)), url("paper.jpg") 60% 30% / 800px auto;
+  clip-path: polygon(0 0,100% 0,100% 55%,97% 80%,93% 50%,88% 95%,84% 60%,79% 85%,74% 45%,69% 90%,63% 55%,58% 100%,52% 60%,47% 85%,41% 50%,36% 95%,30% 55%,25% 80%,19% 45%,14% 90%,9% 55%,4% 85%,0 50%);
 }
 .pad-sheets { position: relative; }
-.pad-sheet {
-  padding: .85rem .8rem .7rem; text-align: center;
-  /* an old slip: the sheet's own texture, lightened, with a little browning at the top */
-  background:
-    linear-gradient(180deg, rgba(110, 70, 30, .16), transparent 35%),
-    linear-gradient(rgba(244, 232, 204, .72), rgba(238, 224, 192, .72)),
-    url("paper.jpg") 30% 40% / 900px auto;
-  /* the edges of the slips still waiting underneath */
-  box-shadow:
-    0 1px 0 #d8c69e, 0 2px 0 #ece0c0, 0 3px 0 #d2bf95, 0 4px 0 #e7d9b6, 0 5px 0 #cdb98d,
-    0 8px 14px -4px rgba(50, 30, 10, .35);
-  border-radius: 0 0 2px 2px;
+/* the slips waiting underneath, peeking out unevenly */
+.pad-under {
+  position: absolute; inset: 4px -3px -6px 3px; transform: rotate(1.2deg);
+  background: linear-gradient(rgba(120, 85, 40, .18), rgba(120, 85, 40, .18)), url("paper.jpg") 20% 70% / 900px auto;
+  clip-path: polygon(0 0,100% 0,100% 100%,92% 98%,84% 100%,73% 97%,61% 100%,48% 98%,35% 100%,22% 97%,10% 100%,0 98%);
 }
-.pad-num { font: 700 1.45rem/1 var(--serif); letter-spacing: .01em; }
-.pad-unit { font: 500 .9rem/1 var(--mono); color: var(--ink-3); }
-.pad-line { display: flex; align-items: baseline; justify-content: center; gap: .35rem; }
-.pad-note { margin: .45rem 0 0; font: italic .9rem/1.25 var(--serif); color: var(--ink-2); }
+.pad-sheet, .pad-falling {
+  position: relative; padding: .7rem .9rem .75rem; text-align: center;
+  background:
+    var(--frame, none) center / 100% 100% no-repeat,                         /* hand-drawn border (set by the script) */
+    linear-gradient(180deg, rgba(110, 70, 30, .14), transparent 30%),
+    linear-gradient(rgba(240, 226, 194, .55), rgba(232, 214, 176, .55)),
+    url("paper.jpg") 35% 45% / 900px auto;
+  filter: drop-shadow(0 1px 1px rgba(60, 35, 10, .25));
+}
+.pad-label { font: 1.05rem/1.2 "Hand", cursive; color: #6b3518; transform: rotate(-1deg); }
+.pad-line { display: flex; align-items: baseline; justify-content: center; gap: .35rem; margin-top: .25rem; }
+.pad-num { font: 700 1.42rem/1.1 var(--serif); color: #2a170b; }
+.pad-unit { font: 1rem/1 "Hand", cursive; color: #6b3518; }
+.pad-note { margin: .35rem 0 0; font: italic .88rem/1.25 var(--serif); color: var(--ink-2); }
 
-.pad-falling {
-  position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  box-shadow: 0 6px 12px -4px rgba(50, 30, 10, .35);
-  transform-origin: 8% 0;
-  animation: pad-tear 1.15s cubic-bezier(.45, 0, .7, .2) forwards;
+/* tearing: rips at the top-right corner first (the corner curls up), then along the rest of
+   the top edge as the slip swings from its last hold at the top-left, then it drops */
+.pad-falling { position: absolute; inset: 0; z-index: 2; pointer-events: none; transform-origin: 0 0; animation: pad-tear 1.7s forwards; }
+.pad-falling .pad-flap {
+  position: absolute; top: 0; right: 0; width: 38px; height: 38px; transform-origin: 100% 0;
+  background: linear-gradient(225deg, transparent 49%, rgba(60, 35, 12, .35) 50%, #d4bd8c 53%, #e2cfa4 75%, #cdb47f 100%);
+  animation: pad-curl 1.7s forwards;
 }
 @keyframes pad-tear {
-  0%   { transform: none; opacity: 1; }
-  18%  { transform: rotate(calc(var(--spin) * .18)) translateY(2px); }       /* the rip starts at one side */
-  100% { transform: translate(var(--drift), 170px) rotate(var(--spin)); opacity: 0; }
+  0%   { transform: none; animation-timing-function: ease-in; }
+  22%  { transform: rotate(4deg); animation-timing-function: ease-out; }          /* corner gives */
+  42%  { transform: rotate(9deg) translateY(3px); animation-timing-function: cubic-bezier(.5, 0, .9, .4); }  /* the tear runs left */
+  100% { transform: translate(var(--drift), var(--fall, 115vh)) rotate(var(--spin)) rotateX(38deg); }                     /* free: falls */
+}
+@keyframes pad-curl {
+  0%   { transform: scale(0); }
+  25%  { transform: scale(1.1) rotate(-4deg); }
+  100% { transform: scale(1.5) rotate(-10deg); }
 }
 @media (prefers-reduced-motion: reduce) { .pad-falling { display: none; } }
+
+/* the header and footer sit on the darker edge of the sheet: darker ink and a faint paper halo keep them legible */
+.masthead nav a, .masthead .brand, .site-foot, .site-foot a {
+  text-shadow: 0 0 4px rgba(240, 228, 200, .95), 0 0 10px rgba(240, 228, 200, .7);
+}
+.masthead nav a { color: var(--ink-2); }
+.site-foot, .site-foot .links a { color: var(--ink-2); }

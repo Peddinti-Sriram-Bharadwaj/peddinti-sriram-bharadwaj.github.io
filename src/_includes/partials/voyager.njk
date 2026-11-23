@@ -1,8 +1,11 @@
-{# A tear-off pad: every few seconds the top slip rips away, revealing Voyager 1's new distance. #}
+{# A torn-off note pad: every few seconds the top slip rips away from its top-right corner,
+   revealing Voyager 1's new distance on the slip beneath. Script: /assets/js/voyager-pad.js #}
 <aside class="voyager" aria-label="Voyager 1's distance from Earth">
-  <div class="pad-binding"><span>Voyager 1</span><span>from Earth</span></div>
+  <div class="pad-stub" aria-hidden="true"></div>
   <div class="pad-sheets">
+    <div class="pad-under" aria-hidden="true"></div>
     <div class="pad-sheet" data-sheet>
+      <div class="pad-label">Voyager 1 · from Earth</div>
       <div class="pad-line"><span class="pad-num" data-num>—</span><span class="pad-unit">km</span></div>
       <div class="pad-note" data-note>&nbsp;</div>
     </div>
