@@ -1,30 +1,38 @@
-"""Generate the aged-paper background: old drawing paper with a hand-ruled sepia grid.
+"""Generate the aged-paper background: old drawing paper plus a grid scratched on by hand.
 No drawings and no text: just the sheet.
 
 usage: python3 tools/make_paper.py [seed]
-writes src/assets/paper.jpg
+writes src/assets/paper.jpg (the sheet) and src/assets/grid.svg (the ruled grid)
 needs: pip install numpy pillow
 
-Layers, broad to fine: cloudy uneven ageing, soft tide-line stains, foxing specks,
-faint drag streaks, browned edges, paper grain, and a grid ruled by hand in sepia
-ink (wavering, pressure-varying, with the odd skip where the nib lifted).
+The sheet is a raster image: cloudy uneven ageing, tide-line water stains, foxing
+specks, faint drag streaks, browned edges and paper grain.
+
+The grid is a separate vector layer so its lines stay razor-sharp at any screen
+size: fine nib hairlines that jitter a little, drift off true, start with the odd
+hook, sometimes double where the point slipped, and skip where it lifted.
+Both layers share the same 2400×1650 frame and are scaled with `cover`, so they line up.
 Tune the weights in `darkness` and the GRID_* settings below.
 """
 import sys, pathlib
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageFilter
 
-W, H = 2400, 1650                     # large enough to stay crisp on retina screens
-BASE = (236, 226, 206)                # the paper: warm grey-beige, as in Leonardo's sheets (matches --paper)
-AGE = (112, 82, 54)                   # the brown that paper turns
-INK = (118, 58, 28)                   # sepia ink for the grid (red-brown, like Leonardo's pen work)
-GRID_STEP = 78                        # px between grid lines (at 2400 px wide; ≈40 px on a laptop screen)
-GRID_ALPHA = (.07, .19)               # min / max ink opacity along a stroke (kept light so text stays readable)
+W, H = 2400, 1650
+BASE = (236, 225, 203)                # the paper: warm grey-beige, as in Leonardo's sheets (matches --paper)
+AGE = (108, 74, 44)                   # the brown that paper turns
+STAIN = .82                           # overall strength of ageing, stains and foxing
+
+GRID_STEP = 78                        # frame units between grid lines (≈40 CSS px on a laptop)
+GRID_INK = "#5e2c12"                  # dark sepia
+GRID_OPACITY = (.20, .46)             # per-stroke opacity range
+GRID_WIDTH = (.55, 1.05)              # stroke width in *screen* pixels (non-scaling), so always a hairline
 
 OUT = pathlib.Path(__file__).resolve().parent.parent / "src" / "assets"
 rng = np.random.default_rng(int(sys.argv[1]) if len(sys.argv) > 1 else 23)
 
 
+# ---------------------------------------------------------------- noise helpers
 def upscale(a, w, h):
     return np.asarray(Image.fromarray(a.astype(np.float32)).resize((w, h), Image.BICUBIC), np.float32)
 
@@ -45,14 +53,16 @@ def blur(a, r):
     return np.asarray(img, np.float32) / 255 * s + lo
 
 
+# ---------------------------------------------------------------- the sheet
 def tide_stains(n):
+    """Water stains: a faint fill with a darker tide line at the rim, fading inward."""
     out = np.zeros((H, W), np.float32)
     for _ in range(n):
         f = fbm(W, H, 5, 1.6, persist=.58)
-        inside = (f > np.quantile(f, rng.uniform(.90, .94))).astype(np.float32)
-        rim = np.clip(blur(inside, 4) - blur(inside, 20), 0, None)
-        rim = blur(rim, 3); rim /= rim.max() + 1e-6
-        out += .3 * rim + .12 * blur(inside, 40)
+        inside = (f > np.quantile(f, rng.uniform(.90, .945))).astype(np.float32)
+        rim = np.clip(blur(inside, 3) - blur(inside, 18), 0, None)
+        rim = blur(rim, 2); rim /= rim.max() + 1e-6
+        out += .55 * rim + .13 * blur(inside, 35)
     return out
 
 
@@ -62,18 +72,18 @@ def foxing(n, clusters):
     for _ in range(n):
         cx, cy = centers[rng.integers(clusters)] if rng.random() < .75 else (rng.integers(0, W), rng.integers(0, H))
         x = int(np.clip(cx + rng.normal(0, 120), 0, W - 1)); y = int(np.clip(cy + rng.normal(0, 90), 0, H - 1))
-        r = rng.gamma(1.3, 2.6) + 1; s = int(r * 4) + 2
+        r = rng.gamma(1.3, 2.8) + 1.2; s = int(r * 4) + 2
         yy, xx = np.ogrid[max(0, y - s):min(H, y + s), max(0, x - s):min(W, x + s)]
         ang, e = rng.uniform(0, np.pi), rng.uniform(1, 1.8); dx, dy = xx - x, yy - y
         u = (dx * np.cos(ang) + dy * np.sin(ang)) / e; v = -dx * np.sin(ang) + dy * np.cos(ang)
-        out[yy, xx] += np.exp(-(u * u + v * v) / (r * r)) * rng.uniform(.2, .7)
-    return blur(out, 1.2)
+        out[yy, xx] += np.exp(-(u * u + v * v) / (r * r)) * rng.uniform(.3, .9)
+    return blur(out, 1.0)
 
 
 def edges():
     yy, xx = np.mgrid[0:H, 0:W]
     v = ((xx - W / 2) / (W / 2)) ** 2 * .85 + ((yy - H / 2) / (H / 2)) ** 2
-    return np.clip(v - .3, 0, None) ** 1.35 * (.65 + .7 * fbm(W, H, 3, 4))
+    return np.clip(v - .28, 0, None) ** 1.3 * (.65 + .7 * fbm(W, H, 3, 4))
 
 
 def grain():
@@ -83,66 +93,73 @@ def grain():
     return .55 * speck + .45 * fibres
 
 
-def hand_ruled_grid():
-    """Ink coverage in [0, 1] for a grid ruled by hand: each line wavers a little,
-    drifts off true, thickens and thins with pen pressure, and sometimes skips."""
-    S = 2                                             # supersample for clean anti-aliasing
-    ink = Image.new("F", (W * S, H * S), 0.0)
-    d = ImageDraw.Draw(ink)
+def make_sheet():
+    darkness = (
+        .34 * fbm(W, H, 7, 2.2, persist=.65)      # cloudy, uneven ageing
+        + .14 * fbm(W, H, 5, 10)
+        + 1.0 * tide_stains(3)
+        + .60 * foxing(110, 8)
+        + .10 * np.clip((fbm(W, H, 5, 5, aniso=(20, 1)) - .5) * 2.2, 0, 1)   # drag streaks
+        + .40 * edges()
+        + .12 * grain()
+    )
+    darkness = np.clip(darkness - np.quantile(darkness, .03), 0, 1)[..., None]
+    base, age = (np.array(c, np.float32) / 255 for c in (BASE, AGE))
+    paper = base * (1 - darkness * (1 - age) * STAIN)
+    Image.fromarray(np.clip(paper * 255, 0, 255).astype(np.uint8)).save(
+        OUT / "paper.jpg", quality=84, optimize=True, progressive=True)
+    print("wrote", OUT / "paper.jpg")
 
-    def stroke(points, alphas, widths):
-        for (p0, p1, a, w) in zip(points[:-1], points[1:], alphas, widths):
-            d.line([p0, p1], fill=float(a), width=max(1, int(round(w * S))))
 
-    def pen_stroke(a, b, horizontal, pos):
-        """One stroke of the pen from a to b along the rule: tapered ends, its own
-        slight angle, a low wobble, and pressure that swells and fades."""
-        L = b - a; n = max(8, int(L / 6))
-        t = np.linspace(0, 1, n)
-        tilt = rng.normal(0, 3.0) * (t - .5)                  # each stroke slightly off true
-        bow = rng.normal(0, 1.6) * np.sin(np.pi * t)          # a gentle curve of the wrist
-        wobble = (fbm(n, 1, 3, max(2, n // 25))[0] - .5) * 2.2
-        offset = pos + tilt + bow + wobble
-        pressure = (.6 + .4 * fbm(n, 1, 2, 3)[0]) * np.clip(np.minimum(t, 1 - t) / .08, .25, 1)   # taper
-        alpha = GRID_ALPHA[0] + (GRID_ALPHA[1] - GRID_ALPHA[0]) * pressure
-        width = .8 + 1.4 * pressure
-        along = a + t * L
-        pts = [(x * S, o * S) for x, o in zip(along, offset)] if horizontal else [(o * S, y * S) for y, o in zip(along, offset)]
-        stroke(pts, alpha, width)
+# ---------------------------------------------------------------- the scratched grid
+def scratch(a, b, horizontal, pos):
+    """One stroke of the nib along a rule, from a to b. Returns SVG path data."""
+    L = b - a; n = max(6, int(L / 9))
+    t = np.linspace(0, 1, n)
+    off = (pos
+           + rng.normal(0, 2.4) * (t - .5)                        # drifts off true
+           + rng.normal(0, 1.1) * np.sin(np.pi * t)               # a slight bow
+           + (fbm(n, 1, 2, max(2, n // 18))[0] - .5) * 1.6       # slow waver
+           + rng.normal(0, .28, n))                               # the scratchy jitter of the nib
+    along = a + t * L
+    pts = list(zip(along, off)) if horizontal else list(zip(off, along))
+    if rng.random() < .18:                                         # a small hook where the nib landed
+        hx, hy = pts[0]; k = rng.uniform(3, 7) * rng.choice([-1, 1])
+        pts.insert(0, (hx - 4, hy + k) if horizontal else (hx + k, hy - 4))
+    return "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts)
 
-    def rule(length, horizontal, pos):
-        """A full grid line, ruled as several overlapping strokes like a hand-drawn line."""
-        x = -rng.uniform(0, 60)
-        while x < length:
-            seg = rng.uniform(260, 720)
-            if rng.random() > .06:                            # now and then the nib skips a stretch
-                pen_stroke(x, min(length + 20, x + seg), horizontal, pos + rng.normal(0, 1.4))
-            x += seg - rng.uniform(8, 40)                     # strokes overlap a little at the joins
 
-    jitter = lambda: rng.normal(0, 1.6)
+def rule(length, horizontal, pos, paths):
+    x = -rng.uniform(0, 50)
+    while x < length:
+        seg = rng.uniform(220, 640)
+        if rng.random() > .07:                                     # now and then the nib skips a stretch
+            p = pos + rng.normal(0, 1.2)
+            paths.append((scratch(x, min(length + 15, x + seg), horizontal, p),
+                           rng.uniform(*GRID_OPACITY), rng.uniform(*GRID_WIDTH)))
+            if rng.random() < .08:                                 # the point slipped: a faint doubled hairline
+                s0 = x + rng.uniform(0, seg * .5)
+                paths.append((scratch(s0, s0 + rng.uniform(40, 140), horizontal, p + rng.choice([-1, 1]) * rng.uniform(1.5, 3)),
+                               GRID_OPACITY[0] * .8, GRID_WIDTH[0]))
+        x += seg - rng.uniform(6, 30)                              # strokes overlap a little at the joins
+
+
+def make_grid():
+    paths = []
     for y in np.arange(GRID_STEP / 2, H, GRID_STEP):
-        rule(W, True, y + jitter())
+        rule(W, True, y + rng.normal(0, 1.5), paths)
     for x in np.arange(GRID_STEP / 2, W, GRID_STEP):
-        rule(H, False, x + jitter())
-    ink = np.asarray(ink.resize((W, H), Image.LANCZOS), np.float32)
-    return np.clip(blur(np.clip(ink, 0, 1), .5), 0, 1)       # ink bleeds a little into the paper
+        rule(H, False, x + rng.normal(0, 1.5), paths)
+    body = "\n".join(
+        f'<path d="{d}" stroke-opacity="{o:.2f}" stroke-width="{w:.2f}"/>' for d, o, w in paths)
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">\n'
+           f'<g fill="none" stroke="{GRID_INK}" stroke-linecap="butt" stroke-linejoin="round" vector-effect="non-scaling-stroke">\n'
+           f'{body}\n</g>\n</svg>\n')
+    # vector-effect must be on each path to take effect in all browsers
+    svg = svg.replace("<path ", '<path vector-effect="non-scaling-stroke" ')
+    (OUT / "grid.svg").write_text(svg)
+    print("wrote", OUT / "grid.svg", f"({len(paths)} strokes, {len(svg)//1024} KB)")
 
 
-darkness = (
-    .30 * fbm(W, H, 7, 2.2, persist=.65)      # cloudy, uneven ageing, as in the reference sheet
-    + .12 * fbm(W, H, 5, 10)
-    + .55 * tide_stains(2)
-    + .40 * foxing(80, 7)
-    + .08 * np.clip((fbm(W, H, 5, 5, aniso=(20, 1)) - .5) * 2.2, 0, 1)   # streaks
-    + .36 * edges()
-    + .12 * grain()
-)
-darkness = np.clip(darkness - np.quantile(darkness, .03), 0, 1)[..., None]
-base, age, ink = (np.array(c, np.float32) / 255 for c in (BASE, AGE, INK))
-paper = base * (1 - darkness * (1 - age) * .62)
-
-grid = hand_ruled_grid()[..., None]
-paper = paper * (1 - grid) + paper * ink * grid        # ink multiplies into the paper
-
-Image.fromarray(np.clip(paper * 255, 0, 255).astype(np.uint8)).save(OUT / "paper.jpg", quality=84, optimize=True, progressive=True)
-print("wrote", OUT / "paper.jpg")
+make_sheet()
+make_grid()

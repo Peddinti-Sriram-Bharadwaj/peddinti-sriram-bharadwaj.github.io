@@ -4,7 +4,7 @@
    ========================================================= */
 :root {
   /* aged notebook paper, iron-gall ink, red chalk */
-  --paper: #ece2ce;
+  --paper: #ece1cb;
   --paper-2: rgba(120, 80, 35, .09);
   --ink: #1e140c;
   --ink-2: #33241a;
@@ -35,7 +35,9 @@ body {
    (a positioned layer rather than background-attachment: fixed, which iOS ignores) */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: var(--paper-img) center / cover no-repeat;
+  /* grid.svg: the hand-scratched grid, vector so it stays sharp; paper.jpg: the aged sheet.
+     Both are drawn in the same 2400×1650 frame and scaled with cover, so they line up. */
+  background: url("grid.svg") center / cover no-repeat, var(--paper-img) center / cover no-repeat;
 }
 ::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-decoration-thickness: 1px; text-underline-offset: .18em; }
