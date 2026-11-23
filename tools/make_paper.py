@@ -190,52 +190,66 @@ def make_sheet():
 
 # ---------------------------------------------------------------- tears
 def make_tears():
-    """Torn-away paper as a transparent overlay (it sits above the grid and sketches):
-    a missing corner, rips and nicks along the borders, and a small slit. Where paper is
-    missing you see a dark backing; along each tear, a band of pale torn fibres."""
+    """Torn paper as four edge strips (top, bottom, left, right), pinned to the screen edges
+    in CSS so the rips show whatever the screen's shape. Where paper is missing you see a
+    dark backing; the torn edge itself is matte, slightly browned and rough, never shiny."""
     from PIL import ImageDraw
-    missing = Image.new("L", (W, H), 0); dm = ImageDraw.Draw(missing)
+    D = 240                                                    # strip depth, in frame px
 
     def ragged(p0, p1, n=60, amp=14):
         t = np.linspace(0, 1, n)
         x = p0[0] + (p1[0] - p0[0]) * t; y = p0[1] + (p1[1] - p0[1]) * t
         nx, ny = -(p1[1] - p0[1]), p1[0] - p0[0]; L = np.hypot(nx, ny) + 1e-9
-        off = (fbm(n, 1, 5, 5, persist=.6)[0] - .5) * 2 * amp + rng.normal(0, amp * .08, n)   # torn paper wanders; it isn't a saw blade
+        off = (fbm(n, 1, 5, 5, persist=.6)[0] - .5) * 2 * amp + rng.normal(0, amp * .1, n)
         return list(zip(x + nx / L * off, y + ny / L * off))
 
-    # a corner torn away (top right)
-    edge = ragged((W - 330, -10), (W + 10, 250), 90, 18)
-    dm.polygon(edge + [(W + 10, -10)], fill=255)
-    # a bite out of the bottom-left corner
-    edge = ragged((-10, H - 170), (210, H + 10), 70, 14)
-    dm.polygon(edge + [(-10, H + 10)], fill=255)
-    # nicks along the borders: small triangular rips
-    for _ in range(6):
-        side = rng.integers(4); depth = rng.uniform(14, 40); width = rng.uniform(30, 80)
-        if side in (0, 1):
-            x = rng.uniform(150, W - 450); y0 = -5 if side == 0 else H + 5; sgn = 1 if side == 0 else -1
-            pts = ragged((x, y0), (x + width * .4, y0 + sgn * depth), 14, 4) + ragged((x + width * .4, y0 + sgn * depth), (x + width, y0), 14, 4)
+    def nick(dm, x, depth, width, length):
+        """A rip along an edge at y=0 (strip coordinates): a ragged V or a ragged bay."""
+        if rng.random() < .5:
+            tip = (x + width * rng.uniform(.3, .7), depth)
+            pts = ragged((x, -5), tip, 16, 5) + ragged(tip, (x + width, -5), 16, 5)
         else:
-            y = rng.uniform(300, H - 300); x0 = -5 if side == 2 else W + 5; sgn = 1 if side == 2 else -1
-            pts = ragged((x0, y), (x0 + sgn * depth, y + width * .4), 14, 4) + ragged((x0 + sgn * depth, y + width * .4), (x0, y + width), 14, 4)
+            pts = ragged((x, -5), (x + width * .2, depth * .8), 10, 5) + ragged((x + width * .2, depth * .8), (x + width * .8, depth), 18, 6) + ragged((x + width * .8, depth), (x + width, -5), 10, 5)
         dm.polygon(pts, fill=255)
-    # a slit tear running in from the left edge, a few millimetres open
-    a = ragged((-5, H * .64), (230, H * .64 + 55), 50, 5); b = ragged((230, H * .64 + 55), (-5, H * .64 + 16), 50, 5)
-    dm.polygon(a + b, fill=255)
 
-    m = np.asarray(missing, np.float32) / 255
-    soft = blur(m, 1.2)
-    fibres = np.clip(blur(m, 3.5) - m, 0, 1) * 2.2                            # a thin band just inside each tear
-    fibres = np.clip(fibres * (.55 + .9 * fbm(W, H, 3, 160)), 0, 1)          # torn fibres are uneven and furry
-    shadow = np.clip(blur(m, 9) - m, 0, 1) * 0                                # (backing sits below; no drop shadow outward)
-    backing = np.array((46, 33, 22), np.float32) / 255
-    back_tex = backing * (.8 + .4 * fbm(W, H, 4, 20))[..., None]
-    inner_shade = np.clip(1 - blur(1 - m, 10), 0, 1)                          # backing darker near the paper's edge
-    rgb = np.where(m[..., None] > .5, back_tex * (1 - .35 * inner_shade[..., None]), np.array((228, 212, 172), np.float32) / 255)   # torn fibres: paler than the aged face, not white
-    alpha = np.clip(soft + fibres * .6 + shadow, 0, 1)
-    rgba = np.dstack([np.clip(rgb * 255, 0, 255), alpha * 255]).astype(np.uint8)
-    Image.fromarray(rgba, "RGBA").save(OUT / "tears.png", optimize=True)
-    print("wrote", OUT / "tears.png")
+    def strip(length, corners, n_nicks, seed_slit=False):
+        img = Image.new("L", (length, D), 0); dm = ImageDraw.Draw(img)
+        for at_end, size in corners:                         # torn-away corners
+            if at_end:
+                e = ragged((length - size * 1.3, -5), (length + 5, size * .75), 80, 14); dm.polygon(e + [(length + 5, -5)], fill=255)
+            else:
+                e = ragged((-5, size * .75), (size * 1.3, -5), 80, 14); dm.polygon(e + [(-5, -5)], fill=255)
+        for _ in range(n_nicks):
+            # keep rips in the outer margins, never behind the text column
+            u = rng.uniform(.04, .26) if rng.random() < .5 else rng.uniform(.74, .9)
+            nick(dm, u * length, rng.uniform(18, 70), rng.uniform(40, 130), length)
+        if seed_slit:                                        # a slit running in from the edge, barely open
+            x = rng.uniform(.12, .22) * length
+            a = ragged((x, -5), (x + 30, D * .55), 40, 3); b = ragged((x + 30, D * .55), (x + 12, -5), 40, 3)
+            dm.polygon(a + b, fill=255)
+        return np.asarray(img, np.float32) / 255
+
+    def render(m):
+        soft = blur(m, .9)
+        edge = np.clip(blur(m, 3) - m, 0, 1) * 2.5                   # just inside the tear
+        backing = np.array((44, 32, 22), np.float32) / 255 * (.82 + .35 * fbm(m.shape[1], m.shape[0], 4, 12))[..., None]
+        browned = np.array((120, 88, 52), np.float32) / 255           # torn edges brown with age
+        rgb = np.where(m[..., None] > .5, backing, browned)
+        alpha = np.clip(soft + edge * (.35 + .3 * fbm(m.shape[1], m.shape[0], 3, 80)), 0, 1)
+        return np.dstack([np.clip(rgb * 255, 0, 255), alpha * 255]).astype(np.uint8)
+
+    top = strip(W, [(True, 220)], 4)
+    bottom = strip(W, [(False, 170)], 3, seed_slit=True)[::-1]           # flip so the torn side faces down
+    left = strip(H, [], 3, seed_slit=True)                                # built horizontally, then turned
+    right = strip(H, [], 3)
+    Image.fromarray(render(top), "RGBA").save(OUT / "tears-top.png", optimize=True)
+    Image.fromarray(render(bottom), "RGBA").save(OUT / "tears-bottom.png", optimize=True)
+    Image.fromarray(np.ascontiguousarray(np.rot90(render(left), -1)[:, ::-1]), "RGBA").save(OUT / "tears-left.png", optimize=True)
+    Image.fromarray(np.ascontiguousarray(np.rot90(render(right), -1)), "RGBA").save(OUT / "tears-right.png", optimize=True)
+    old = OUT / "tears.png"
+    if old.exists():
+        old.unlink()
+    print("wrote", OUT / "tears-{top,bottom,left,right}.png")
 
 
 # ---------------------------------------------------------------- the scratched grid
