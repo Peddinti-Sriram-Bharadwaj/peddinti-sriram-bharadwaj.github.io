@@ -71,6 +71,11 @@ if (pad) {
     stub.style.clipPath = `polygon(${pts.join(",")})`;
   };
 
+  // The tear, driven by the Web Animations API so every phase is explicit:
+  //  1. the top-right corner rips and curls up        (0 – 0.5 s)
+  //  2. the rip runs left along the top edge; the slip
+  //     swings down from its last hold at the top-left (0.5 – 1.1 s)
+  //  3. it tears free and falls under gravity, tumbling, until it is off the screen
   const tear = () => {
     if (document.hidden) return;
     if (calm.matches) { render(); return; }
@@ -78,14 +83,37 @@ if (pad) {
     old.removeAttribute("data-sheet");
     old.className = "pad-falling";
     old.style.clipPath = raggedTop();
-    old.style.setProperty("--drift", `${10 + Math.random() * 40}px`);
-    old.style.setProperty("--spin", `${18 + Math.random() * 22}deg`);
     const flap = document.createElement("span"); flap.className = "pad-flap"; old.appendChild(flap);
     sheet.parentNode.appendChild(old);
     sheet.style.setProperty("--frame", frame());                     // a fresh slip, its own border
-    setTimeout(roughStub, 650);                                      // once it has torn free, a new stub remains
     render();                                                        // the slip underneath has the new number
-    old.addEventListener("animationend", () => old.remove(), { once: true });
+
+    const fixed = getComputedStyle(pad).position === "fixed";
+    const top = old.getBoundingClientRect().top;
+    const fallTo = fixed ? innerHeight - top + 160 : 320;            // off the screen, or a short drop inline
+    const drift = 25 + Math.random() * 45, spinEnd = 32 + Math.random() * 26;
+    const T1 = 500, T2 = 1100, FALL = 1500;                         // ms
+    const total = T2 + FALL;
+    const frames = [
+      { offset: 0, transform: "rotate(0deg)" },
+      { offset: T1 / total * .45, transform: "rotate(1.5deg)" },
+      { offset: T1 / total, transform: "rotate(5deg) translateY(1px)" },
+      { offset: (T1 + (T2 - T1) * .6) / total, transform: "rotate(11deg) translateY(3px)" },
+      { offset: T2 / total, transform: "rotate(14deg) translateY(5px)" },
+    ];
+    for (let k = 1; k <= 14; k++) {                                   // free fall: y = ½ g t²
+      const f = k / 14, t = T2 + FALL * f;
+      const y = 5 + fallTo * f * f, x = drift * f, r = 14 + (spinEnd - 14) * f, tilt = 34 * f;
+      frames.push({ offset: t / total, transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg) rotateX(${tilt.toFixed(1)}deg)` });
+    }
+    old.animate(frames, { duration: total, easing: "linear", fill: "forwards" }).finished.then(() => old.remove());
+    flap.animate([
+      { transform: "scale(0)" },
+      { transform: "scale(1.15) rotate(-4deg)", offset: T1 / total },
+      { transform: "scale(1.5) rotate(-10deg)", offset: T2 / total },
+      { transform: "scale(1.7) rotate(-16deg)" },
+    ], { duration: total, fill: "forwards", easing: "ease-out" });
+    setTimeout(roughStub, T2);                                       // once it has torn free, a new stub remains
   };
 
   sheet.style.setProperty("--frame", frame());

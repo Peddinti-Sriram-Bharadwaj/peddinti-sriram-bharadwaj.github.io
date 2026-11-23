@@ -264,7 +264,6 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
   transform: rotate(-2.2deg);
   perspective: 700px;
 }
-@media (max-width: 1179px) { .voyager { --fall: 240px; } }   /* inline in the footer: a short drop */
 @media (min-width: 1180px) {
   .voyager { position: fixed; right: 2.8rem; bottom: 3.4rem; margin: 0; z-index: 2; }
 }
@@ -301,24 +300,11 @@ details.transcript .prose { padding: .2rem 0 .6rem; }
 .pad-unit { font: 1.1rem/1 "Hand", cursive; color: #5a2a10; }
 .pad-note { margin: .3rem 0 0; font: .92rem/1.25 "Hand", cursive; white-space: nowrap; color: #5a2a10; transform: rotate(.8deg); }
 
-/* tearing: rips at the top-right corner first (the corner curls up), then along the rest of
-   the top edge as the slip swings from its last hold at the top-left, then it drops */
-.pad-falling { position: absolute; inset: 0; z-index: 2; pointer-events: none; transform-origin: 0 0; animation: pad-tear 1.7s forwards; }
+/* tearing is animated in assets/js/voyager-pad.js */
+.pad-falling { position: absolute; inset: 0; z-index: 5; pointer-events: none; transform-origin: 2% 0; will-change: transform; }
 .pad-falling .pad-flap {
   position: absolute; top: 0; right: 0; width: 38px; height: 38px; transform-origin: 100% 0;
   background: linear-gradient(225deg, transparent 49%, rgba(60, 35, 12, .35) 50%, #d4bd8c 53%, #e2cfa4 75%, #cdb47f 100%);
-  animation: pad-curl 1.7s forwards;
-}
-@keyframes pad-tear {
-  0%   { transform: none; animation-timing-function: ease-in; }
-  22%  { transform: rotate(4deg); animation-timing-function: ease-out; }          /* corner gives */
-  42%  { transform: rotate(9deg) translateY(3px); animation-timing-function: cubic-bezier(.5, 0, .9, .4); }  /* the tear runs left */
-  100% { transform: translate(var(--drift), var(--fall, 115vh)) rotate(var(--spin)) rotateX(38deg); }                     /* free: falls */
-}
-@keyframes pad-curl {
-  0%   { transform: scale(0); }
-  25%  { transform: scale(1.1) rotate(-4deg); }
-  100% { transform: scale(1.5) rotate(-10deg); }
 }
 @media (prefers-reduced-motion: reduce) { .pad-falling { display: none; } }
 
