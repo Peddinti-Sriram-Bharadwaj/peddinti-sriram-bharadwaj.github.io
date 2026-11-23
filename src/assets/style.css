@@ -1,16 +1,18 @@
 /* =========================================================
    Sriram Bharadwaj — research notebook
-   white page, blue-black ink, graph paper under the handwriting
+   aged paper, iron-gall ink, red chalk (textures: tools/make_paper.py)
    ========================================================= */
 :root {
-  --paper: #fcfcfa;
-  --paper-2: #f3f3ef;
-  --ink: #1b1d21;
-  --ink-2: #464a52;
-  --ink-3: #7d828b;
-  --rule: #e3e3dd;
-  --accent: #1f3a8a;                       /* blue-black ink */
-  --grid: rgba(31, 58, 138, .075);
+  /* aged notebook paper, iron-gall ink, red chalk */
+  --paper: #e8d7b4;
+  --paper-2: rgba(120, 80, 35, .09);
+  --ink: #2a1f15;
+  --ink-2: #4d3b2a;
+  --ink-3: #7a6248;
+  --rule: rgba(110, 72, 32, .26);
+  --accent: #8c3a1f;                       /* sanguine / red chalk */
+  --grid: rgba(110, 72, 32, .09);
+  --paper-img: url("paper-light.jpg");
   --serif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --measure: 42rem;
@@ -18,14 +20,16 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #121418;
-    --paper-2: #1a1d22;
-    --ink: #e7e7e4;
-    --ink-2: #b4b7bd;
-    --ink-3: #7f848c;
-    --rule: #2a2e35;
-    --accent: #93acff;
-    --grid: rgba(147, 172, 255, .07);
+    /* the same paper by candlelight */
+    --paper: #1f1810;
+    --paper-2: rgba(232, 200, 150, .06);
+    --ink: #eadcc0;
+    --ink-2: #c7b494;
+    --ink-3: #94805f;
+    --rule: rgba(232, 200, 150, .16);
+    --accent: #d98a62;
+    --grid: rgba(232, 200, 150, .06);
+    --paper-img: url("paper-dark.jpg");
     color-scheme: dark;
   }
 }
@@ -41,6 +45,12 @@ body {
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
 }
+/* the aged sheet: a fixed layer behind everything, so it stays put while the text scrolls
+   (a positioned layer rather than background-attachment: fixed, which iOS ignores) */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--paper-img) center / cover no-repeat;
+}
 ::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-decoration-thickness: 1px; text-underline-offset: .18em; }
 a:hover { text-decoration-color: currentColor; }
@@ -54,7 +64,7 @@ code { font: .86em/1 var(--mono); background: var(--paper-2); padding: .12em .32
 
 /* graph paper, used under handwriting */
 .graph {
-  background-color: var(--paper);
+  background-color: transparent;
   background-image:
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px);
@@ -80,8 +90,8 @@ code { font: .86em/1 var(--mono); background: var(--paper-2); padding: .12em .32
 /* ---------- hero ---------- */
 .hero { display: grid; grid-template-columns: 9.5rem 1fr; gap: 2rem; align-items: start; padding: 2.8rem 0 2.4rem; }
 .hero > .portrait { order: -1; }
-.portrait { width: 9.5rem; aspect-ratio: 1; padding: 4px; border: 1px solid var(--rule); background: var(--paper); }
-.portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.portrait { width: 9.5rem; aspect-ratio: 1; padding: 4px; border: 1px solid var(--rule); background: rgba(255,250,235,.25); box-shadow: 0 1px 6px rgba(60,35,10,.12); }
+.portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; filter: sepia(.28) saturate(.85) contrast(1.03); }
 .portrait .monogram { width: 100%; height: 100%; display: grid; place-items: center; background: var(--paper-2); font: 600 2rem/1 var(--serif); color: var(--ink-3); }
 .hero .where { font: .78rem/1.4 var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
 .hero h1 { font: 600 clamp(1.65rem, 4.4vw, 2.05rem)/1.22 var(--serif); letter-spacing: -.015em; margin: .4rem 0 .9rem; text-wrap: balance; }
@@ -93,7 +103,7 @@ code { font: .86em/1 var(--mono); background: var(--paper-2); padding: .12em .32
 .buttons { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.1rem; }
 .buttons a {
   font: .8rem/1 var(--mono); text-decoration: none; color: var(--ink-2);
-  padding: .5rem .75rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper);
+  padding: .5rem .75rem; border: 1px solid var(--rule); border-radius: 4px; background: transparent;
   transition: border-color .15s, color .15s;
 }
 .buttons a:hover { border-color: var(--accent); color: var(--accent); }
@@ -157,7 +167,7 @@ section { padding: 2.2rem 0 1.6rem; border-top: 1px solid var(--rule); }
 .post:hover h3 { color: var(--accent); }
 .post p { margin: 0; color: var(--ink-2); }
 .post .cover { margin: .8rem 0 .7rem; border: 1px solid var(--rule); overflow: hidden; }
-.post .cover img { width: 100%; filter: invert(1) hue-rotate(180deg) contrast(1.05); mix-blend-mode: multiply; }
+.post .cover img { width: 100%; filter: invert(1) hue-rotate(180deg) sepia(.45) contrast(1.08); mix-blend-mode: multiply; opacity: .86; }
 
 /* reading */
 .shelf { list-style: none; margin: 0; padding: 0; }
@@ -201,9 +211,9 @@ section { padding: 2.2rem 0 1.6rem; border-top: 1px solid var(--rule); }
 
 /* handwritten manuscripts: ink straight onto graph paper */
 .manuscript { max-width: 48rem; margin: .6rem auto 1.6rem; padding: 1.6rem 1rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-.manuscript img { width: 100%; max-width: 44rem; margin: 0 auto; height: auto; filter: invert(1) hue-rotate(180deg) contrast(1.05); mix-blend-mode: multiply; }
+.manuscript img { width: 100%; max-width: 44rem; margin: 0 auto; height: auto; filter: invert(1) hue-rotate(180deg) sepia(.45) contrast(1.08); mix-blend-mode: multiply; opacity: .86; }
 @media (prefers-color-scheme: dark) {
-  .manuscript img, .post .cover img { filter: none; mix-blend-mode: screen; }
+  .manuscript img, .post .cover img { filter: sepia(.35); mix-blend-mode: screen; }
 }
 
 details.transcript { margin: 1.2rem 0 2rem; border: 1px solid var(--rule); border-radius: 6px; padding: 0 1.2rem; }
