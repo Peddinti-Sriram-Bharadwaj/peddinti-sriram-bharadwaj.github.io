@@ -37,7 +37,7 @@ body::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   /* sketches.svg: faint notebook sketches (tools/make_sketches.py); grid.svg: the hand-scratched grid;
      paper.jpg: the aged sheet (tools/make_paper.py). All share one 2400×1650 frame and scale with cover, so they line up. */
-  background: url("grid.svg") center / cover no-repeat, var(--paper-img) center / cover no-repeat;
+  background: url("sketches-centre.svg") center / cover no-repeat, url("grid.svg") center / cover no-repeat, var(--paper-img) center / cover no-repeat;
 }
 /* the sketches, on their own layer, faded out behind the text column at any screen width
    so they never compete with what you're reading */

@@ -20,14 +20,22 @@ from matplotlib.path import Path
 
 W, H = 2400, 1650
 INK = "#4a2210"
-LAYER_OPACITY = .46          # how present the whole sketch layer is
+LAYER_OPACITY = .50          # how present the margin sketches are
+CENTRE_OPACITY = .16         # the faint drafts behind the text column (kept low for legibility)
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 FONT = FontProperties(fname=str(ROOT / "tools" / "fonts" / "LaBelleAurore.ttf"))
 rng = np.random.default_rng(int(sys.argv[1]) if len(sys.argv) > 1 else 5)
 
-out = []            # SVG elements
+margin_layer, centre_layer, ghost_layer = [], [], []
+out = margin_layer  # current target for SVG elements (see use())
 defs = []           # clip paths
 boxes = []          # cluster bounding boxes, for the coverage report
+
+
+def use(layer):
+    """Switch which layer subsequent drawing goes to."""
+    global out
+    out = layer
 
 
 # ---------------------------------------------------------------- pen primitives
@@ -246,22 +254,32 @@ def font_text(s, x, y, h, rot=0):
     return width
 
 
-def write(tokens, x, y, h, rot=0.0):
-    """Typeset a line of handwritten maths. tokens: strings (font text), '@name' (drawn glyph),
-    or ('_', [...]) / ('^', [...]) for sub- and superscripts. A slight drift keeps it hand-made."""
+def _line(tokens, x, y, h):
+    """Lay out one line of handwritten maths along +x. tokens: strings (font text), '@name'
+    (drawn glyph), or ('_', [...]) / ('^', [...]) for sub- and superscripts."""
     x0 = x
     for tok in tokens:
         if isinstance(tok, tuple):
             kind, inner = tok
-            dy = h * .28 if kind == "_" else -h * .42
-            x += write(inner, x, y + dy, h * .6, rot)
+            x += _line(inner, x, y + (h * .28 if kind == "_" else -h * .42), h * .6)
             continue
-        jy = y + rng.normal(0, h * .03) + (x - x0) * math.sin(rot)
-        if tok.startswith("@"):
-            x += glyph_stroke(tok[1:], x, jy, h) + h * .08
-        else:
-            x += font_text(tok, x, jy, h, rot) + h * .02
+        jy = y + rng.normal(0, h * .03)
+        x += (glyph_stroke(tok[1:], x, jy, h) + h * .08) if tok.startswith("@") else (font_text(tok, x, jy, h) + h * .02)
     return x - x0
+
+
+def place(draw, x, y, rot=0.0, mirror=False):
+    """Run draw() at the origin and wrap what it drew in one transform: position, angle
+    (radians) and, if mirror, Leonardo's right-to-left mirror writing."""
+    start = len(out); res = draw()
+    els = out[start:]; del out[start:]
+    tf = f"translate({x:.1f},{y:.1f}) rotate({math.degrees(rot):.2f})" + (" scale(-1,1)" if mirror else "")
+    out.append(f'<g transform="{tf}">' + "".join(els) + "</g>")
+    return res
+
+
+def write(tokens, x, y, h, rot=0.0, mirror=False):
+    return place(lambda: _line(tokens, 0, 0, h), x, y, rot, mirror)
 
 
 def arrow_curve(pts, w=1.3, o=.75):
@@ -282,10 +300,12 @@ def strays(x0, y0, x1, y1, n=6):
             line(x, ya, x + rng.normal(0, 14), ya + rng.uniform(100, (y1 - y0) * .8), .8, rng.uniform(.2, .4), 1, 1.2)
 
 
-def notes(lines, x, y, h, lead=1.45, rot=0.0):
-    """A block of small cramped notes, each line a little skewed and indented."""
-    for i, ln in enumerate(lines):
-        write(ln if isinstance(ln, list) else [ln], x + rng.normal(0, h * .4), y + i * h * lead, h * rng.uniform(.92, 1.05), rot + rng.normal(0, .012))
+def notes(lines, x, y, h, lead=1.45, rot=0.0, mirror=False):
+    """A block of small cramped notes, turned as a whole; lines a little uneven."""
+    def draw():
+        for i, ln in enumerate(lines):
+            _line(ln if isinstance(ln, list) else [ln], rng.normal(0, h * .4), i * h * lead + rng.normal(0, h * .08), h * rng.uniform(.92, 1.05))
+    place(draw, x, y, rot, mirror)
 
 
 def box(x0, y0, x1, y1):
@@ -318,10 +338,11 @@ def neural_net(x, y, layers=(3, 4, 4, 2), dx=105, dy=62):
 gear(330, 330, 175, 30, 6)
 gear(330 + 175 + 82, 330 + 85, 92, 16, 4, rot=.1)
 gear(330 + 30, 330 + 175 + 120, 70, 12, 4, shade=False)
-write(["ratio  30 : 16"], 600, 600, 30, -.05)
-notes(["the pinion of 16 turns", "nearly twice for each", "turn of the great wheel"], 520, 650, 21, rot=.02)
+write(["ratio  30 : 16"], 600, 600, 30, -.16)
+notes(["the pinion of 16 turns", "nearly twice for each", "turn of the great wheel"], 500, 650, 21, rot=.11)
+notes(["teeth must be cut equal or", "the train will knock and stall"], 60, 690, 18, rot=-math.pi / 2 + .03)
 strays(100, 70, 720, 700, 7)
-write(["the train"], 130, 95, 34, .03)
+write(["the train"], 130, 95, 34, -.12)
 line(130, 105, 270, 160, 1, .5)
 box(100, 70, 720, 700)
 
@@ -329,12 +350,12 @@ box(100, 70, 720, 700)
 balance_spring(300, 960)
 write(["balance,"], 120, 1110, 30, .02)
 write(["isochronous"], 120, 1150, 28, .02)
-notes(["the spring breathes;", "each swing the same time"], 330, 1110, 19, rot=-.02)
+notes(["the spring breathes;", "each swing the same time"], 340, 1080, 19, rot=-.2)
 strays(100, 830, 460, 1170, 4)
 box(100, 830, 600, 1190)
 
 # --- bottom-left: the Bellman optimality operator, and a small MDP
-write(["(T", ("^", ["*"]), "Q)(s,a) = r(s,a) + ", "@gamma", " ", "@Sigma", ("_", ["s'"]), " P(s' | s,a) max", ("_", ["a'"]), " Q(s',a')"], 60, 1290, 34, -.02)
+write(["(T", ("^", ["*"]), "Q)(s,a) = r(s,a) + ", "@gamma", " ", "@Sigma", ("_", ["s'"]), " P(s' | s,a) max", ("_", ["a'"]), " Q(s',a')"], 60, 1300, 34, -.06)
 write(["Q", ("^", ["*"]), " = T", ("^", ["*"]), "Q", ("^", ["*"]), "   fixed point"], 110, 1360, 34, .01)
 write(["@norm", "TQ - TQ'", "@norm", ("_", ["@inf"]), " ", "@leq", " ", "@gamma", " ", "@norm", "Q - Q'", "@norm", ("_", ["@inf"])], 90, 1430, 32, -.015)
 for (sx, sy, lab) in ((240, 1530, "s"), (380, 1580, "s'"), (520, 1520, "s''")):
@@ -343,26 +364,27 @@ for (sx, sy, lab) in ((240, 1530, "s"), (380, 1580, "s'"), (520, 1520, "s''")):
 arrow_curve([(262, 1512), (310, 1482), (358, 1560)])
 arrow_curve([(406, 1572), (455, 1596), (496, 1540)])
 arrow_curve([(540, 1500), (600, 1440), (560, 1490), (534, 1496)])
-notes(["contraction in the sup norm,", "so Q* exists and is unique;", "iterate T and it is found"], 600, 1530, 20, rot=-.03)
+notes(["contraction in the sup norm,", "so Q* exists and is unique;", "iterate T and it is found"], 590, 1500, 20, rot=-.24)
 strays(50, 1250, 690, 1620, 5)
 write(["a, r"], 290, 1490, 22)
 box(50, 1250, 690, 1620)
 
 # --- top-right: a small network and its equations
 neural_net(1900, 290)
-write(["h = ", "@sigma", "(W", ("_", ["1"]), "x + b", ("_", ["1"]), ")"], 1850, 115, 34, .02)
+write(["h = ", "@sigma", "(W", ("_", ["1"]), "x + b", ("_", ["1"]), ")"], 1850, 120, 34, .09)
 write(["y = softmax(W", ("_", ["2"]), "h)"], 1880, 520, 32, -.02)
 write(["@partial", "L / ", "@partial", "W  = ", "@partial", "L/", "@partial", "h ", " . ", "@partial", "h/", "@partial", "W"], 1820, 580, 28, .01)
-notes(["weights learn by the gradient,", "layer upon layer, as a train", "of wheels passes motion on"], 2020, 640, 20, rot=.02)
+notes(["weights learn by the gradient,", "layer upon layer, as a train", "of wheels passes motion on"], 2040, 620, 20, rot=.17)
+notes(["ogni parte è disposta", "al suo tutto"], 2360, 160, 19, rot=math.pi / 2 - .04)
 strays(1800, 80, 2370, 600, 6)
 box(1800, 80, 2370, 700)
 
 # --- right, middle: escapement wheel and pallet fork
 escapement(2110, 1000, 150)
-write(["escapement"], 1850, 1010, 32, -.08)
+write(["escapement"], 1850, 1010, 32, -.3)
 line(2010, 990, 1965, 1000, 1, .5)
-write(["tick . tock"], 2200, 1190, 26, .04)
-notes(["the wheel gives an impulse,", "the pallet takes it back"], 1840, 1080, 20, rot=-.04)
+write(["tick . tock"], 2190, 860, 26, .38)
+notes(["the wheel gives an impulse,", "the pallet takes it back"], 2010, 1160, 20, rot=-.13, mirror=True)
 strays(1820, 720, 2300, 1200, 6)
 box(1820, 720, 2300, 1200)
 
@@ -371,20 +393,66 @@ write(["Q", ("_", ["@omega"]), " = ", "@omega", "Q", ("^", ["*"]), " + (1 - ", "
 write(["@omega", " ", "@leq", " 1 / (1 - ", "@gamma", "p", ("_", ["min"]), ")"], 1880, 1400, 32, .015)
 write(["gaps  ", "@Rarrow", "  ", "@omega", " . gap"], 1900, 1465, 28, -.01)
 gear(2250, 1560, 60, 10, 3, shade=False)
-notes(["over-relaxed, the target shifts:", "same policy, wider gaps"], 1840, 1530, 20, rot=.02)
+notes(["over-relaxed, the target shifts:", "same policy, wider gaps"], 1850, 1530, 20, rot=.14)
 strays(1810, 1280, 2370, 1630, 5)
 box(1810, 1280, 2370, 1630)
 
-# --- centre: only a whisper, so the text column stays clear
-write(["@gamma", " < 1"], 1150, 1590, 26, .03)
-box(1130, 1560, 1260, 1600)
+# --- centre: drafts left on the sheet. Its own, much fainter layer, so text stays legible.
+use(centre_layer)
+cx, cy, R = 1210, 800, 430
+construction(cx, cy, R)                                   # a proportion study: circle and square
+sketchy(arc(cx, cy, R, 2.3, 2.3 + 2 * math.pi * .78), 1.6, .8, 2, amp=3)
+sq = [(cx - R * .86, cy - R * .62), (cx + R * .86, cy - R * .62), (cx + R * .86, cy + R * .98), (cx - R * .86, cy + R * .98), (cx - R * .86, cy - R * .62)]
+sketchy(sq, 1.4, .7, 2, amp=2)
+line(cx - R * .86, cy + R * .2, cx + R * .86, cy + R * .2, 1, .5, 1, 2)
+line(cx, cy - R * 1.05, cx, cy + R * 1.05, 1, .45, 1, 2)
+for i in range(13):                                       # a scale bar, as under Leonardo's figures
+    tx = cx - 300 + i * 50
+    line(tx, cy + R * 1.18, tx, cy + R * 1.18 + (14 if i % 2 else 22), 1, .6)
+line(cx - 300, cy + R * 1.18, cx + 300, cy + R * 1.18, 1.2, .6)
+gear(880, 380, 120, 22, 5, shade=False, rot=.3)             # a ghost of a wheel, half rubbed out
+write(["Q", ("_", ["k+1"]), " = T Q", ("_", ["k"])], 1420, 300, 34, -.1)
+line(1405, 285, 1640, 262, 1.4, .6)                       # struck through
+line(1408, 300, 1650, 280, 1.2, .5)
+write(["@gamma", " < 1"], 1150, 1590, 26, .05)
+use(margin_layer)
 
-# ---------------------------------------------------------------- write the SVG
+# --- show-through: writing on the back of the sheet, seen reversed through the paper
+use(ghost_layer)
+notes(["dell' acqua e del moto", "delle ruote dentate", "e del tempo misurato", "che passa e non ritorna"], 1550, 1180, 28, rot=-.05, mirror=True)
+notes(["la natura non rompe", "la sua legge"], 900, 1330, 26, rot=.04, mirror=True)
+use(margin_layer)
+
+# ---------------------------------------------------------------- write the SVGs
+# Ink ageing: ragged edges (displacement), a little bleed into the paper (blurred halo),
+# and patches where the ink has faded unevenly (low-frequency noise as an alpha mask).
+INK_FILTER = """<filter id="aged" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="1" seed="4" result="grain"/>
+  <feDisplacementMap in="SourceGraphic" in2="grain" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+  <feGaussianBlur in="rough" stdDeviation="1.4" result="spread"/>
+  <feComponentTransfer in="spread" result="bleed"><feFuncA type="linear" slope=".4"/></feComponentTransfer>
+  <feMerge result="ink"><feMergeNode in="bleed"/><feMergeNode in="rough"/></feMerge>
+  <feTurbulence type="fractalNoise" baseFrequency=".004 .006" numOctaves="3" seed="11" result="age"/>
+  <feColorMatrix in="age" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -.55" result="fade"/>
+  <feComposite in="ink" in2="fade" operator="in"/>
+</filter>"""
+GHOST_FILTER = """<filter id="ghost" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="2.2"/></filter>"""
+
+
+def svg_file(name, body, extra_defs=""):
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">\n'
+           f'<defs>{"".join(defs)}{INK_FILTER}{extra_defs}</defs>\n{body}</svg>\n')
+    dest = ROOT / "src" / "assets" / name
+    dest.write_text(svg)
+    print(f"wrote {dest} ({len(svg)//1024} KB)")
+
+
+GROUP = 'fill="none" stroke="{}" stroke-linecap="round" stroke-linejoin="round"'.format(INK)
+svg_file("sketches.svg",
+         f'<g filter="url(#aged)" opacity="{LAYER_OPACITY}" {GROUP}>\n' + "\n".join(margin_layer) + "\n</g>\n")
+svg_file("sketches-centre.svg",
+         f'<g filter="url(#ghost)" opacity="{CENTRE_OPACITY * .55}" {GROUP}>\n' + "\n".join(ghost_layer) + "\n</g>\n"
+         f'<g filter="url(#aged)" opacity="{CENTRE_OPACITY}" {GROUP}>\n' + "\n".join(centre_layer) + "\n</g>\n",
+         GHOST_FILTER)
 covered = sum((x1 - x0) * (y1 - y0) for x0, y0, x1, y1 in boxes) / (W * H)
-svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">\n'
-       f'<defs>{"".join(defs)}</defs>\n'
-       f'<g opacity="{LAYER_OPACITY}" fill="none" stroke="{INK}" stroke-linecap="round" stroke-linejoin="round">\n'
-       + "\n".join(out) + "\n</g>\n</svg>\n")
-dest = ROOT / "src" / "assets" / "sketches.svg"
-dest.write_text(svg)
-print(f"wrote {dest} ({len(svg)//1024} KB); clusters cover {covered:.0%} of the frame")
+print(f"margin clusters cover {covered:.0%} of the frame (centre drafts are a separate, much fainter layer)")

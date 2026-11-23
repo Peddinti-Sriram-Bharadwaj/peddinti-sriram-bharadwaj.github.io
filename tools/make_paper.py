@@ -19,9 +19,10 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 W, H = 2400, 1650
-BASE = (236, 225, 203)                # the paper: warm grey-beige, as in Leonardo's sheets (matches --paper)
-AGE = (108, 74, 44)                   # the brown that paper turns
-STAIN = .82                           # overall strength of ageing, stains and foxing
+BASE = (232, 217, 178)                # the paper: aged ochre, as in Leonardo's sheets (matches --paper)
+AGE = (96, 74, 36)                    # the olive-brown that paper turns
+RUST = (162, 92, 44)                  # foxing: iron in the paper oxidising to rust-red
+STAIN = .80                           # overall strength of ageing, stains and foxing
 
 GRID_STEP = 78                        # frame units between grid lines (≈40 CSS px on a laptop)
 GRID_INK = "#5e2c12"                  # dark sepia
@@ -59,10 +60,11 @@ def tide_stains(n):
     out = np.zeros((H, W), np.float32)
     for _ in range(n):
         f = fbm(W, H, 5, 1.6, persist=.58)
-        inside = (f > np.quantile(f, rng.uniform(.90, .945))).astype(np.float32)
-        rim = np.clip(blur(inside, 3) - blur(inside, 18), 0, None)
-        rim = blur(rim, 2); rim /= rim.max() + 1e-6
-        out += .55 * rim + .13 * blur(inside, 35)
+        inside = (f > np.quantile(f, rng.uniform(.915, .955))).astype(np.float32)
+        inside *= .55 + .45 * fbm(W, H, 4, 12)                    # the water didn't soak evenly
+        rim = np.clip(blur(inside, 3) - blur(inside, 16), 0, None)
+        rim = blur(rim, 2.5); rim /= rim.max() + 1e-6
+        out += .42 * rim * (.5 + .5 * fbm(W, H, 3, 20)) + .16 * blur(inside, 28)
     return out
 
 
@@ -93,22 +95,92 @@ def grain():
     return .55 * speck + .45 * fibres
 
 
+def rust_foxing():
+    """Rust-red foxing: small sharp spots with darker cores, crowding toward the edges,
+    plus a few larger blooms. Returned as coverage in [0, 1]."""
+    out = np.zeros((H, W), np.float32)
+    yy, xx = np.mgrid[0:H, 0:W]
+    edge_w = np.clip(np.maximum(np.abs(xx / W - .5) * 2, np.abs(yy / H - .5) * 2) - .35, 0, 1) / .65
+    cdf = (edge_w ** 1.6 + .04).ravel(); cdf = np.cumsum(cdf / cdf.sum())
+    for _ in range(650):
+        i = int(np.searchsorted(cdf, rng.random())); y, x = divmod(i, W)
+        big = rng.random() < .09
+        r = rng.gamma(1.5, 4 if big else 1.4) + (6 if big else .8); s = int(r * 3) + 2
+        ys, xs = slice(max(0, y - s), min(H, y + s)), slice(max(0, x - s), min(W, x + s))
+        d = np.hypot(xx[ys, xs] - x, (yy[ys, xs] - y) * rng.uniform(.8, 1.3)) / r
+        spot = np.exp(-d ** 2) * (.5 + .5 * np.exp(-(d * 2.2) ** 2))           # halo + core
+        out[ys, xs] = np.maximum(out[ys, xs], spot * rng.uniform(.45, 1))
+    breakup = np.clip((fbm(W, H, 4, 140, persist=.7) - .3) * 2.2, 0, 1)   # spots are ragged, not round
+    out = out * (.25 + .75 * breakup)
+    halo = blur(out, 6) * .5                                          # a faint brown cloud around each cluster
+    return np.clip(blur(out, .5) + halo, 0, 1)
+
+
+def creases():
+    """Two old folds: a dark line in the valley and a pale highlight beside it."""
+    dark = np.zeros((H, W), np.float32); light = np.zeros((H, W), np.float32)
+    yy, xx = np.mgrid[0:H, 0:W]
+    for pos, vertical in ((H * .36, False), (W * .64, True)):
+        along = (yy if vertical else xx).astype(np.float32)
+        wob = 9 * np.sin(along / 310 + rng.uniform(0, 6)) + 3 * np.sin(along / 67) + 14 * (along / along.max() - .5)
+        d = ((xx if vertical else yy) - pos - wob)
+        strength = .55 + .45 * fbm(W, H, 3, 6)
+        dark += np.exp(-(d / 3.5) ** 2) * .22 * strength + np.exp(-(d / 30) ** 2) * .08
+        light += np.exp(-((d - 6) / 4) ** 2) * .3 * strength
+    return dark, light
+
+
+def scratches(n=70):
+    """Fine abrasions: short pale scuffs where the surface has worn."""
+    img = Image.new("L", (W, H), 0); from PIL import ImageDraw as D; d = D.Draw(img)
+    for _ in range(n):
+        x, y = rng.uniform(0, W), rng.uniform(0, H); a = rng.uniform(0, np.pi); L = rng.uniform(20, 120)
+        pts = [(x + t * L * np.cos(a) + rng.normal(0, 1.2), y + t * L * np.sin(a) + rng.normal(0, 1.2)) for t in np.linspace(0, 1, 6)]
+        d.line(pts, fill=int(rng.uniform(60, 160)), width=1)
+    return np.asarray(img, np.float32) / 255
+
+
+def worn_edges():
+    """Edges darkened by handling: strongest at the corners, ragged rather than smooth."""
+    yy, xx = np.mgrid[0:H, 0:W]
+    ex, ey = np.abs(xx / W - .5) * 2, np.abs(yy / H - .5) * 2
+    v = np.clip(np.maximum(ex, ey) - .72 + .22 * (fbm(W, H, 5, 9) - .5), 0, None) / .28
+    corner = np.clip(ex * ey - .55, 0, None) * 2.2
+    return np.clip((v ** 1.3 + corner) * (.6 + .6 * fbm(W, H, 4, 14)), 0, 1.2)
+
+
+def centre_relief():
+    """Stains are allowed everywhere, but weaker behind the text column so reading stays easy."""
+    x = np.linspace(-1, 1, W)[None, :]
+    return (.45 + .55 * np.clip(np.abs(x) * 1.6, 0, 1) ** 1.5).astype(np.float32)
+
+
 def make_sheet():
+    grime = np.clip((.6 * fbm(W, H, 7, 2.0, persist=.68) + .4 * fbm(W, H, 6, 7, persist=.6) - .3) * 1.5, 0, 1)
+    dark_c, light_c = creases()
     darkness = (
-        .34 * fbm(W, H, 7, 2.2, persist=.65)      # cloudy, uneven ageing
-        + .14 * fbm(W, H, 5, 10)
-        + 1.0 * tide_stains(3)
-        + .60 * foxing(110, 8)
+        .55 * grime                                # mottled, uneven ageing
+        + .10 * fbm(W, H, 4, 25)                   # finer blotching
+        + 1.0 * tide_stains(3) * centre_relief()
+        + .35 * foxing(90, 8)                      # brown specks
         + .10 * np.clip((fbm(W, H, 5, 5, aniso=(20, 1)) - .5) * 2.2, 0, 1)   # drag streaks
-        + .40 * edges()
-        + .12 * grain()
+        + .55 * worn_edges()
+        + .16 * grain()
+        + dark_c
     )
-    darkness = np.clip(darkness - np.quantile(darkness, .03), 0, 1)[..., None]
-    base, age = (np.array(c, np.float32) / 255 for c in (BASE, AGE))
+    darkness = np.clip(darkness - np.quantile(darkness, .03), 0, 1.3)[..., None]
+    base, age, rust = (np.array(c, np.float32) / 255 for c in (BASE, AGE, RUST))
     paper = base * (1 - darkness * (1 - age) * STAIN)
+    olive = np.array((150, 140, 92), np.float32) / 255           # greenish cast in places, as old rag paper gets
+    tint = (np.clip(fbm(W, H, 5, 3) - .45, 0, None) * 1.4)[..., None]
+    paper = paper * (1 - tint * .35) + paper * olive / olive.max() * tint * .35
+    fox = rust_foxing()[..., None]
+    paper = paper * (1 - fox * (1 - rust) * .72)                   # rust spots multiply into the sheet
+    paper = paper + (1 - paper) * (.22 * light_c + .25 * scratches())[..., None]   # pale crease ridges and scuffs
     Image.fromarray(np.clip(paper * 255, 0, 255).astype(np.uint8)).save(
         OUT / "paper.jpg", quality=84, optimize=True, progressive=True)
-    print("wrote", OUT / "paper.jpg")
+    c = paper[H // 2 - 300:H // 2 + 300, W // 2 - 500:W // 2 + 500].mean(axis=(0, 1)) * 255
+    print("wrote", OUT / "paper.jpg", "centre colour", c.astype(int))
 
 
 # ---------------------------------------------------------------- the scratched grid
