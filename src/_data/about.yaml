@@ -8,7 +8,7 @@ experience:
   - role: Research Intern
     when: Jan – Jul 2026
     org: Stochastic Systems Lab, Indian Institute of Science
-    text: Co-advised by Prof. Shalabh Bhatnagar (IISc) and Prof. Raghuram Bharadwaj (IIIT Bangalore) on sample-efficient RL. Co-developed the SOR family of Bellman training signals, now under review at AISTATS 2027.
+    text: Co-advised by Prof. Shalabh Bhatnagar (IISc) and Prof. Raghuram Bharadwaj (IIIT Bangalore) on sample-efficient RL. Co-developed the SOR family of Bellman training signals, now under review.
   - role: Freelance Agentic AI Engineer
     when: Feb – Apr 2025
     org: Remote

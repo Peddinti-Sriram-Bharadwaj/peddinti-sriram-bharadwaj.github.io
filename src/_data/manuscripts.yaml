@@ -1,7 +1,7 @@
 # "Manuscripts & reports" list on the Research page. "me" marks your name in the author list.
 - title: "The SOR Family: A Navigable Continuum of Bellman Training Signals for Deep Reinforcement Learning"
   authors: [me, Raghuram Bharadwaj, Shalabh Bhatnagar]
-  venue: Under review at AISTATS 2027.
+  venue: Under review.
   project: sor
 - title: "UBU: Unmeasurability-Based Unlearning for Safe Reinforcement Learning"
   authors: [me, Raghuram Bharadwaj]

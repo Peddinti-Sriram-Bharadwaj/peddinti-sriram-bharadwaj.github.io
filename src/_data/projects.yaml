@@ -54,11 +54,11 @@
   part:
     label: My part
     text: co-developed the update rules; built the orchestration that ran parallel hyperparameter sweeps across 6+ GPUs, and the Optuna/SQLite auditing behind the repeated-search evaluation; implemented a TD-SOR AlphaZero variant in JAX.
-  status: Under review at AISTATS 2027
+  status: Under review
   home:
     title: The SOR Family of Bellman Training Signals
     cat: RL theory
-    meta: IISc Stochastic Systems Lab · under review at AISTATS 2027
+    meta: IISc Stochastic Systems Lab · under review
     summary: Over-relaxing the Bellman update doesn't just speed it up. It changes the fixed point and widens every action gap. With Raghuram Bharadwaj and Shalabh Bhatnagar.
 
 - id: ubu
