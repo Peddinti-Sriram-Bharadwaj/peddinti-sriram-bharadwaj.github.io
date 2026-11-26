@@ -17,7 +17,7 @@ M.Tech in Computer Science at IIIT Bangalore, currently researching continual se
 - **Independent Researcher** — Remote, Aug 2026 – Present
   Continual self-play RL for LLM post-training; unified multi-agent RL framework across TextArena, OpenSpiel, PettingZoo, JaxMARL; dual-LoRA adversarial self-play for code repair.
 - **Research Intern, Stochastic Systems Lab** — IISc, Jan – Jul 2026
-  Co-developed the SOR family of parametrized Bellman target-update rules via Successive Over-Relaxation; ran massively parallel GPU sweeps across 6+ GPUs; manuscript under review.
+  Co-developed the SOR family of parametrized Bellman target-update rules via Successive Over-Relaxation; ran massively parallel GPU sweeps across 8 GPUs; manuscript under review.
 - **Freelance Agentic AI Engineer** — Remote, Feb – Apr 2025
   Architected an end-to-end NLU agentic system on LangGraph with prompt-injection guardrails, deployed via scalable FastAPI endpoints.
 

@@ -53,7 +53,7 @@
       - <em>Limits.</em> The exact analyses use small MDPs and linear features. The neural experiments cover classic control and MinAtar; on Atari we ran only searches.
   part:
     label: My part
-    text: co-developed the update rules; built the orchestration that ran parallel hyperparameter sweeps across 6+ GPUs, and the Optuna/SQLite auditing behind the repeated-search evaluation; implemented a TD-SOR AlphaZero variant in JAX.
+    text: co-developed the update rules; built the orchestration that ran parallel hyperparameter sweeps across 8 GPUs, and the Optuna/SQLite auditing behind the repeated-search evaluation; implemented a TD-SOR AlphaZero variant in JAX.
   status: Under review
   home:
     title: The SOR Family of Bellman Training Signals
